@@ -38,16 +38,33 @@ const treadmill = {
     },    
     increaseIncline: (req, res) => {
         const percent = req.query.percent;
-        const logMessage = `Increasing Incline by ${percent}`;
+        const logMessage = `Increasing Incline by ${percent}%`;
         console.log(logMessage);
+        treadmill.inclineVoltageOn();
+        setTimeout(treadmill.inclineVoltageOff, percent * 1000);
         res.send(logMessage);
     },    
     decreaseIncline: (req, res) => {
         const percent = req.query.percent;
-        const logMessage = `Decreasing Incline by ${percent}`;
+        const logMessage = `Decreasing Incline by ${percent}%`;
         console.log(logMessage);
+        treadmill.declineVoltageOn();
+        setTimeout(treadmill.declineVoltageOff, percent * 1000);
         res.send(logMessage);
     },
+    inclineVoltageOn: () => {
+        console.log(`Flipping the switch on`);
+    },
+    inclineVoltageOff: () => {
+        console.log(`Flipping the switch off`);
+    },
+    declineVoltageOn: () => {
+        console.log(`Flipping the switch on`);
+    },
+    declineVoltageOff: () => {
+        console.log(`Flipping the switch off`);
+    },
+    
 };
 
 
