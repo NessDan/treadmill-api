@@ -1,37 +1,33 @@
 const Gpio = require('pigpio').Gpio;
+const speedWire = new Gpio(13, { mode: Gpio.OUTPUT });
 
 const treadmill = {
     start: (req, res) => {
         const logMessage = `Starting Treadmill`;
         console.log(logMessage);
-        //console.log(req.query);
-        const wire = new Gpio(4, { mode: Gpio.OUTPUT });
-        //wire.digitalWrite(1);
-        let dutyCycle = 5;
+        console.log(req.query);
+        let dutyCycle = 1;
         let goingUp = true;
-        wire.pwmWrite(100);
-        /*
         setInterval(() => {
-        wire.pwmWrite(dutyCycle);
-        if(goingUp) {
-        dutyCycle+=5;
-        } else {
-        dutyCycle-=5;
-        }
-        if(dutyCycle > 250) {
-        goingUp=false;
-        } else if (dutyCycle === 5) {
-        goingUp=true;
-        }
-        }, 100);
-        */
-        //res.send(logMessage);
+            speedWire.pwmWrite(dutyCycle);
+            if(goingUp) {
+                dutyCycle+=1;
+            } else {
+                dutyCycle-=1;
+            }
+            if(dutyCycle > 10) {
+                goingUp=false;
+            } else if (dutyCycle < 2) {
+                goingUp=true;
+            }
+        }, 500);
+        res.send(logMessage);
     },
     stop: (req, res) => {
         const logMessage = `Stopping Treadmill`;
         console.log(logMessage);
-        const wire = new Gpio(4, { mode: Gpio.OUTPUT });
-        wire.digitalWrite(0);
+        const speedWire = new Gpio(4, { mode: Gpio.OUTPUT });
+        speedWire.digitalWrite(0);
         res.send(logMessage);
     },
     setSpeed: (req, res) => {
