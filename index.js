@@ -2,8 +2,6 @@ const express = require('express');
 const treadmill = require('./treadmill.js');
 const app = express();
 
-
-treadmill.start();
 app.get(`/start`, treadmill.start);
 app.get(`/stop`, treadmill.stop);
 app.get(`/setSpeed`, treadmill.setSpeed);
