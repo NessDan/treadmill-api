@@ -15,12 +15,12 @@ const treadmill = {
             } else {
                 dutyCycle-=1;
             }
-            if(dutyCycle > 10) {
+            if(dutyCycle > 40) {
                 goingUp=false;
             } else if (dutyCycle < 2) {
                 goingUp=true;
             }
-        }, 500);
+        }, 600);
         res.send(logMessage);
     },
     stop: (req, res) => {
