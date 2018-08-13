@@ -70,7 +70,7 @@ const treadmill = {
     speedWireOn: (targetDutyCycle) => {
         let currentDutyCycle = 0;
         const speedInterval = setInterval(() => {
-            speedWire.pwmWrite(currentDutyCycle);
+            speedWire.hardwarePwmWrite(18, currentDutyCycle);
             currentDutyCycle+=1;
 
             if (currentDutyCycle >= targetDutyCycle) {
@@ -79,7 +79,7 @@ const treadmill = {
         }, 700);
     },
     speedWireOff: () => {
-        speedWire.pwmWrite(0);
+        speedWire.digitalWrite(0);
     },
     inclineWireOn: () => {
         console.log(`Flipping the incline wire on`);
