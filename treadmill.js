@@ -1,5 +1,7 @@
 const Gpio = require('pigpio').Gpio;
 const speedWire = new Gpio(13, { mode: Gpio.OUTPUT });
+const inclineWire = new Gpio(19, { mode: Gpio.OUTPUT });
+const declineWire = new Gpio(26, { mode: Gpio.OUTPUT });
 
 const treadmill = {
     start: (req, res) => {
@@ -55,7 +57,12 @@ const treadmill = {
         res.send(logMessage);
     },
     increaseIncline: (req, res) => {
-        const percent = req.query.percent;
+        let percent = 1;
+
+        if (req && req.query && req.query.percent) {
+            percent = req.query.percent;
+        }
+
         const logMessage = `Increasing Incline by ${percent}%`;
         console.log(logMessage);
         treadmill.inclineVoltageOn();
@@ -63,7 +70,12 @@ const treadmill = {
         res.send(logMessage);
     },
     decreaseIncline: (req, res) => {
-        const percent = req.query.percent;
+        let percent = 1;
+
+        if (req && req.query && req.query.percent) {
+            percent = req.query.percent;
+        }
+
         const logMessage = `Decreasing Incline by ${percent}%`;
         console.log(logMessage);
         treadmill.declineVoltageOn();
@@ -71,19 +83,22 @@ const treadmill = {
         res.send(logMessage);
     },
     inclineVoltageOn: () => {
-        console.log(`Flipping the switch on`);
+        console.log(`Flipping the incline wire on`);
+        inclineWire.digitalWrite(1);
     },
     inclineVoltageOff: () => {
-        console.log(`Flipping the switch off`);
+        console.log(`Flipping the incline wire off`);
+        inclineWire.digitalWrite(0);
     },
     declineVoltageOn: () => {
-        console.log(`Flipping the switch on`);
+        console.log(`Flipping the decline wire on`);
+        declineWire.digitalWrite(1);
     },
     declineVoltageOff: () => {
-        console.log(`Flipping the switch off`);
+        console.log(`Flipping the decline wire off`);
+        declineWire.digitalWrite(0);
     },
 
 };
 
-//treadmill.start();
 module.exports = treadmill;
