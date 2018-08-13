@@ -8,28 +8,14 @@ const treadmill = {
         const logMessage = `Starting Treadmill`;
         console.log(logMessage);
         console.log(req.query);
-        let dutyCycle = 10;
-        let goingUp = true;
-        setInterval(() => {
-            speedWire.pwmWrite(dutyCycle);
-            if(goingUp) {
-                dutyCycle+=1;
-            } else {
-                dutyCycle-=1;
-            }
-            if(dutyCycle > 30) {
-                goingUp=false;
-            } else if (dutyCycle < 10) {
-                goingUp=true;
-            }
-        }, 700);
+        // speedWireOn(req.query);
+        treadmill.speedWireOn(50);
         res.send(logMessage);
     },
     stop: (req, res) => {
         const logMessage = `Stopping Treadmill`;
         console.log(logMessage);
-        const speedWire = new Gpio(4, { mode: Gpio.OUTPUT });
-        speedWire.digitalWrite(0);
+        treadmill.speedWireOff();
         res.send(logMessage);
     },
     setSpeed: (req, res) => {
@@ -65,8 +51,8 @@ const treadmill = {
 
         const logMessage = `Increasing Incline by ${percent}%`;
         console.log(logMessage);
-        treadmill.inclineVoltageOn();
-        setTimeout(treadmill.inclineVoltageOff, percent * 5000);
+        treadmill.inclineWireOn();
+        setTimeout(treadmill.inclineWireOff, percent * 5000);
         res.send(logMessage);
     },
     decreaseIncline: (req, res) => {
@@ -78,23 +64,37 @@ const treadmill = {
 
         const logMessage = `Decreasing Incline by ${percent}%`;
         console.log(logMessage);
-        treadmill.declineVoltageOn();
-        setTimeout(treadmill.declineVoltageOff, percent * 5000);
+        treadmill.declineWireOn();
+        setTimeout(treadmill.declineWireOff, percent * 5000);
         res.send(logMessage);
     },
-    inclineVoltageOn: () => {
+    speedWireOn: (targetDutyCycle) => {
+        let currentDutyCycle = 0;
+        const speedInterval = setInterval(() => {
+            speedWire.pwmWrite(currentDutyCycle);
+            dutyCycle+=1;
+
+            if (dutyCycle >= targetDutyCycle) {
+                clearInterval(speedInterval);
+            }
+        }, 700);
+    },
+    speedWireOff: () => {
+        speedWire.pwmWrite(0);
+    },
+    inclineWireOn: () => {
         console.log(`Flipping the incline wire on`);
         inclineWire.digitalWrite(1);
     },
-    inclineVoltageOff: () => {
+    inclineWireOff: () => {
         console.log(`Flipping the incline wire off`);
         inclineWire.digitalWrite(0);
     },
-    declineVoltageOn: () => {
+    declineWireOn: () => {
         console.log(`Flipping the decline wire on`);
         declineWire.digitalWrite(1);
     },
-    declineVoltageOff: () => {
+    declineWireOff: () => {
         console.log(`Flipping the decline wire off`);
         declineWire.digitalWrite(0);
     },
