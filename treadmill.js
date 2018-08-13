@@ -6,7 +6,7 @@ const treadmill = {
         const logMessage = `Starting Treadmill`;
         console.log(logMessage);
         console.log(req.query);
-        let dutyCycle = 1;
+        let dutyCycle = 10;
         let goingUp = true;
         setInterval(() => {
             speedWire.pwmWrite(dutyCycle);
@@ -15,12 +15,12 @@ const treadmill = {
             } else {
                 dutyCycle-=1;
             }
-            if(dutyCycle > 40) {
+            if(dutyCycle > 30) {
                 goingUp=false;
-            } else if (dutyCycle < 2) {
+            } else if (dutyCycle < 10) {
                 goingUp=true;
             }
-        }, 600);
+        }, 700);
         res.send(logMessage);
     },
     stop: (req, res) => {
