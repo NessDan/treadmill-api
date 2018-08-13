@@ -8,8 +8,7 @@ const treadmill = {
         const logMessage = `Starting Treadmill`;
         console.log(logMessage);
         console.log(req.query);
-        // speedWireOn(req.query);
-        treadmill.speedWireOn(50);
+        speedWireOn(req.query.dutyCycle);
         res.send(logMessage);
     },
     stop: (req, res) => {
