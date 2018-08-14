@@ -1,5 +1,6 @@
 const Gpio = require('pigpio').Gpio;
-const speedWire = new Gpio(13, { mode: Gpio.OUTPUT });
+const speedWire = new Gpio(18, { mode: Gpio.OUTPUT });
+const speedInfoWire = new Gpio(25, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN });
 const inclineWire = new Gpio(19, { mode: Gpio.OUTPUT });
 const declineWire = new Gpio(26, { mode: Gpio.OUTPUT });
 
