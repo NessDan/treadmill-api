@@ -6,10 +6,11 @@ const declineWire = new Gpio(26, { mode: Gpio.OUTPUT });
 
 const treadmill = {
     speedWireOn: (targetDutyCycle) => {
+        const speedWireFrequency = 20; // Treadmill uses 20Hz freq from testing.
         let currentDutyCycle = 0;
         const speedInterval = setInterval(() => {
-            speedWire.hardwarePwmWrite(20, currentDutyCycle);
-            currentDutyCycle+=1;
+            speedWire.hardwarePwmWrite(speedWireFrequency, currentDutyCycle);
+            currentDutyCycle+=10000;
 
             if (currentDutyCycle >= targetDutyCycle) {
                 clearInterval(speedInterval);
