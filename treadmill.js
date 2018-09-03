@@ -37,19 +37,22 @@ const treadmill = {
             // Going from 0mph to 6mph takes roughly 11s
             // https://photos.app.goo.gl/h2WShMgJdqL9JZsq5
             // Therefor, for every 1mph, it takes 0.55s
-            let speedChange;
+            let speedChange = 0;
+            
             if (treadmill.targetSpeed > treadmill.currentSpeed) {
                 speedChange = 0.1;
             } else if (treadmill.targetSpeed < treadmill.currentSpeed) {
                 speedChange = -0.1;
             }
 
-            treadmill.currentSpeed = treadmill.currentSpeed + speedChange;
+            if (speedChange !== 0) {
+                treadmill.currentSpeed += speedChange;
 
-            // TODO: temporary safety check Cap speed at 4mph
-            if (treadmill.currentSpeed < 4) {
-                const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
-                speedWire.hardwarePwmWrite(speedWireFrequency, newDutyCycle);
+                // TODO: temporary safety check Cap speed at 4mph
+                if (treadmill.currentSpeed < 4) {
+                    const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
+                    speedWire.hardwarePwmWrite(speedWireFrequency, newDutyCycle);
+                }
             }
 
             // Once target speed is acquired, destroy the interval.
