@@ -1,5 +1,5 @@
 const express = require('express');
-const apiRouting = require('routing/api');
+const apiRouting = require('./routing/api.js');
 const app = express();
 
 app.post(`/api`, apiRouting);

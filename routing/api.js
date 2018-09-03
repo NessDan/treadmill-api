@@ -1,5 +1,5 @@
 const express = require('express');
-const treadmill = require('treadmill');
+const treadmill = require('../treadmill.js');
 const apiRouter = express.Router();
 
 // All of these functions can be hit by visiting /api/functionName
