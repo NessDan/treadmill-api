@@ -9,7 +9,7 @@ const routing = {
         const targetSpeed = req.query.mph || 1;
         console.log(logMessage);
         console.log(req.query);
-        treadmill.goToSpeed(targetSpeed);
+        treadmill.goToSpeed(Number(targetSpeed));
         res.send(logMessage);
     },
     stop: (req, res) => {
