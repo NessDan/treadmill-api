@@ -33,7 +33,8 @@ const treadmill = {
         };
 
         setInterval(() => {
-            console.log(treadmill.targetSpeed);
+            console.log('targ: ', treadmill.targetSpeed);
+            console.log('cur: ', treadmill.currentSpeed);
             // Going from 0mph to 6mph takes roughly 11s
             // https://photos.app.goo.gl/h2WShMgJdqL9JZsq5
             // Therefor, for every 1mph, it takes 0.55s
@@ -51,6 +52,7 @@ const treadmill = {
                 // TODO: temporary safety check Cap speed at 4mph
                 if (treadmill.currentSpeed < 4) {
                     const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
+                    console.log('duty: ', newDutyCycle);
                     speedWire.hardwarePwmWrite(speedWireFrequency, newDutyCycle);
                 }
             }
