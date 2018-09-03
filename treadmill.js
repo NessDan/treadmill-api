@@ -31,7 +31,7 @@ const treadmill = {
                 return 0; // If we're asked to get the duty cycle for anything below 0.5mph, just return 0.
             }
 
-            return dutyCycleForMph;
+            return Number(dutyCycleForMph);
         };
 
         setInterval(() => {
