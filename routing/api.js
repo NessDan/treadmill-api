@@ -70,7 +70,7 @@ const routing = {
 
 // Go through each property on our routing object and link it
 // to an API endpoint URL.
-Object.getOwnPropertyNames(routing).forEach(endpointName => {
+Object.keys(routing).forEach(endpointName => {
     apiRouter.post(`/${endpointName}`, routing[endpointName]);
 });
 
