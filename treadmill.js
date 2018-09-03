@@ -1,3 +1,5 @@
+// TODO Implement bigint to support floating point numbers.
+
 const Gpio = require('pigpio').Gpio;
 const speedWire = new Gpio(18, { mode: Gpio.OUTPUT });
 const speedInfoWire = new Gpio(25, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN });
