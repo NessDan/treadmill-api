@@ -6,10 +6,11 @@ const apiRouter = express.Router();
 const routing = {
     start: (req, res) => {
         const logMessage = `Starting Treadmill`;
-        const targetSpeed = req.query.mph || 1;
+        // const targetSpeed = req.query.mph || 1;
+        const targetSpeed = 3;
         console.log(logMessage);
         console.log(req.query);
-        treadmill.goToSpeed(Number(targetSpeed));
+        treadmill.goToSpeed(targetSpeed);
         res.send(logMessage);
     },
     stop: (req, res) => {
