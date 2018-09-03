@@ -7,7 +7,7 @@ const declineWire = new Gpio(26, { mode: Gpio.OUTPUT });
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
 const treadmill = {
     initialize: () => {
-        this.achieveTargetSpeedLoop();
+        treadmill.achieveTargetSpeedLoop();
     },
     targetSpeed: 0,
     currentSpeed: 0,
@@ -37,13 +37,13 @@ const treadmill = {
             // https://photos.app.goo.gl/h2WShMgJdqL9JZsq5
             // Therefor, for every 1mph, it takes 0.55s
             let speedChange;
-            if (this.targetSpeed > this.currentSpeed) {
+            if (treadmill.targetSpeed > treadmill.currentSpeed) {
                 speedChange = 0.1;
-            } else if (this.targetSpeed < this.currentSpeed) {
+            } else if (treadmill.targetSpeed < treadmill.currentSpeed) {
                 speedChange = -0.1;
             }
 
-            const nextSpeedMph = this.currentSpeed + speedChange;
+            const nextSpeedMph = treadmill.currentSpeed + speedChange;
 
             // TODO: temporary safety check Cap speed at 4mph
             if (nextSpeedMph < 4) {
@@ -59,7 +59,7 @@ const treadmill = {
     },
     goToSpeed: (mph) => {
         if (mph < 4) { // TODO: temporary safety check
-            this.targetSpeed = mph;
+            treadmill.targetSpeed = mph;
         }
     },
     speedWireOn: (targetDutyCycle) => {
