@@ -42,4 +42,4 @@ const treadmill = {
     }
 };
 
-export default treadmill;
+module.exports = treadmill;

@@ -74,4 +74,4 @@ Object.getOwnPropertyNames(routing).forEach(endpointName => {
     apiRouter.post(`/${endpointName}`, routing[endpointName]);
 });
 
-export default apiRouter;
+module.exports = apiRouter;
