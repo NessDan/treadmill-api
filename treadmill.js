@@ -8,7 +8,7 @@ const treadmill = {
     speedWireOn: (targetDutyCycle) => {
         let currentDutyCycle = 0;
         const speedInterval = setInterval(() => {
-            speedWire.hardwarePwmWrite(21, 500000);
+            speedWire.hardwarePwmWrite(20, currentDutyCycle);
             currentDutyCycle+=1;
 
             if (currentDutyCycle >= targetDutyCycle) {
