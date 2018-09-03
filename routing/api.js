@@ -6,15 +6,16 @@ const apiRouter = express.Router();
 const routing = {
     start: (req, res) => {
         const logMessage = `Starting Treadmill`;
+        const targetSpeed = req.query.dutyCycle || 1;
         console.log(logMessage);
         console.log(req.query);
-        treadmill.speedWireOn(req.query.dutyCycle);
+        treadmill.goToSpeed(targetSpeed);
         res.send(logMessage);
     },
     stop: (req, res) => {
         const logMessage = `Stopping Treadmill`;
         console.log(logMessage);
-        treadmill.speedWireOff();
+        treadmill.goToSpeed(0);
         res.send(logMessage);
     },
     incline: (req, res) => {
