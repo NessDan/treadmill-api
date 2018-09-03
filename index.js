@@ -1,5 +1,5 @@
-import express from 'express';
-import apiRouting from 'routing/api';
+const express = require('express');
+const apiRouting = require('routing/api');
 const app = express();
 
 app.post(`/api`, apiRouting);
