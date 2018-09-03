@@ -44,7 +44,7 @@ const treadmill = {
                 speedChange = -0.1;
             }
 
-            treadmill.currentSpeed += speedChange;
+            treadmill.currentSpeed = treadmill.currentSpeed + speedChange;
 
             // TODO: temporary safety check Cap speed at 4mph
             if (treadmill.currentSpeed < 4) {
