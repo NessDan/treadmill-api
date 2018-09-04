@@ -19,6 +19,7 @@
   "homepage": "https://github.com/NessDan/treadmill-api#readme",
   "dependencies": {
     "express": "^4.16.3",
-    "pigpio": "^1.1.2"
+    "pigpio": "^1.1.2",
+    "decimal.js": "^10.0.1"
   }
 }
