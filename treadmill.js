@@ -51,15 +51,15 @@ const treadmill = {
                 speedChange = new Decimal(-0.1);
             }
 
-            console.log('targ: ', treadmill.targetSpeed.toFixed(2));
-            console.log('cur: ', treadmill.currentSpeed.toFixed(2));
-            console.log('duty: ', newDutyCycle.toNumber());
-
-
             // TODO: temporary safety check Cap speed at 4mph
             if (speedChange && treadmill.currentSpeed.lte(4)) {
                 treadmill.currentSpeed.add(speedChange);
                 const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
+
+                console.log('targ: ', treadmill.targetSpeed.toFixed(2));
+                console.log('cur: ', treadmill.currentSpeed.toFixed(2));
+                console.log('duty: ', newDutyCycle);
+
                 speedWire.hardwarePwmWrite(speedWireFrequency, newDutyCycle);
             }
         }, dutyCycleUpdaterFrequencyMs);
