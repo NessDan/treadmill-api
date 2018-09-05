@@ -56,8 +56,8 @@ const treadmill = {
                 treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
                 const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
 
-                console.log('targ: ', treadmill.targetSpeed.toFixed(1));
-                console.log('cur: ', treadmill.currentSpeed.toFixed(1));
+                console.log('targ: ', treadmill.targetSpeed.toNumber());
+                console.log('cur: ', treadmill.currentSpeed.toNumber());
                 console.log('duty: ', newDutyCycle);
 
                 speedWire.hardwarePwmWrite(speedWireFrequency, newDutyCycle);
