@@ -53,7 +53,7 @@ const treadmill = {
 
             // TODO: temporary safety check Cap speed at 4mph
             if (speedChange && treadmill.currentSpeed.lte(4)) {
-                treadmill.currentSpeed.add(speedChange);
+                treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
                 const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
 
                 console.log('targ: ', treadmill.targetSpeed.toFixed(2));
