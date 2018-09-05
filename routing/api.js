@@ -1,22 +1,28 @@
 const express = require('express');
 const treadmill = require('../treadmill.js');
 const apiRouter = express.Router();
+const Decimal = require('decimal.js');
 
 // All of these functions can be hit by visiting /api/functionName
 const routing = {
     start: (req, res) => {
         const logMessage = `Starting Treadmill`;
-        // const targetSpeed = req.query.mph || 1;
-        const targetSpeed = 3;
+        // TODO put in a constants file.
+        let targetSpeed = new Decimal(1); // Default mph.
+
+        if (req.query && req.query.mph && typeof req.query.mph === "number") {
+            targetSpeed = new Decimal(req.query.mph);
+        }
+
         console.log(logMessage);
         console.log(req.query);
         treadmill.goToSpeed(targetSpeed);
         res.send(logMessage);
     },
-    stop: (req, res) => {
+    stop: (_req, res) => {
         const logMessage = `Stopping Treadmill`;
         console.log(logMessage);
-        treadmill.goToSpeed(0);
+        treadmill.goToSpeed(new Decimal(0));
         res.send(logMessage);
     },
     incline: (req, res) => {
