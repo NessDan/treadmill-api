@@ -14,7 +14,7 @@ const routing = {
             logMessage = `Setting speed to ${mph.toFixed(1)}mph`;
 
             console.log(logMessage);
-            treadmill.setSpeed(targetSpeed);
+            treadmill.setSpeed(mph);
             res.send(logMessage);
         } else {
             console.log(logMessage);
@@ -36,7 +36,7 @@ const routing = {
             logMessage = `Setting incline to ${grade.toFixed(1)}% grade`;
 
             console.log(logMessage);
-            treadmill.goToIncline(targetIncline);
+            treadmill.goToIncline(grade);
             res.send(logMessage);
         } else {
             console.log(logMessage);
