@@ -5,76 +5,71 @@ const Decimal = require('decimal.js');
 
 // All of these functions can be hit by visiting /api/functionName
 const routing = {
-    start: (req, res) => {
-        const logMessage = `Starting Treadmill`;
-        // TODO put in a constants file.
-        let targetSpeed = new Decimal(1); // Default mph.
+    setSpeed: (req, res) => {
+        console.log(req.query);
+        let logMessage = `Could not set speed. Must pass "mph" parameter.`;
 
         if (req.query && req.query.mph) {
-            targetSpeed = new Decimal(req.query.mph);
+            const mph = new Decimal(req.query.mph);
+            logMessage = `Setting speed to ${mph.toFixed(1)}mph`;
+
+            console.log(logMessage);
+            treadmill.setSpeed(targetSpeed);
+            res.send(logMessage);
+        } else {
+            console.log(logMessage);
+            res.send(logMessage);
         }
-
-        console.log(logMessage);
-        console.log(req.query);
-        treadmill.goToSpeed(targetSpeed);
-        res.send(logMessage);
     },
-    stop: (_req, res) => {
-        const logMessage = `Stopping Treadmill`;
+    getSpeed: (_req, res) => {
+        const treadmillSpeed = treadmill.currentSpeed.toFixed(1);
+        const logMessage = `Returning treadmill speed of ${treadmillSpeed}mph`;
         console.log(logMessage);
-        treadmill.goToSpeed(new Decimal(0));
-        res.send(logMessage);
-    },
-    incline: (req, res) => {
-        let percent = 1;
-
-        if (req && req.query && req.query.percent) {
-            percent = req.query.percent;
-        }
-
-        const logMessage = `Increasing Incline by ${percent}%`;
-        console.log(logMessage);
-        treadmill.inclineWireOn();
-        setTimeout(treadmill.inclineWireOff, percent * 5000);
-        res.send(logMessage);
-    },
-    decline: (req, res) => {
-        let percent = 1;
-
-        if (req && req.query && req.query.percent) {
-            percent = req.query.percent;
-        }
-
-        const logMessage = `Decreasing Incline by ${percent}%`;
-        console.log(logMessage);
-        treadmill.declineWireOn();
-        setTimeout(treadmill.declineWireOff, percent * 5000);
-        res.send(logMessage);
-    },
-    faster: (req, res) => {
-        const logMessage = `Increasing Speed by ${treadmill.constants.speedStep}`;
-        console.log(logMessage);
-        res.send(logMessage);
-    },
-    slower: (req, res) => {
-        const mph = req.query.mph;
-        const logMessage = `Decreasing Speed by ${treadmill.constants.speedStep}`;
-        console.log(logMessage);
-        res.send(logMessage);
-    },
-    setSpeed: (req, res) => {
-        const mph = req.query.mph;
-        const logMessage = `Setting Speed to ${mph}`;
-        console.log(logMessage);
-        res.send(logMessage);
+        res.send(treadmillSpeed);
     },
     setIncline: (req, res) => {
-        const percent = req.query.percent;
-        const logMessage = `Setting Incline to ${percent}`;
+        console.log(req.query);
+        let logMessage = `Could not set incline. Must pass "grade" parameter.`;
+
+        if (req.query && req.query.grade) {
+            const grade = new Decimal(req.query.grade);
+            logMessage = `Setting incline to ${grade.toFixed(1)}% grade`;
+
+            console.log(logMessage);
+            treadmill.goToIncline(targetIncline);
+            res.send(logMessage);
+        } else {
+            console.log(logMessage);
+            res.send(logMessage);
+        }
+    },
+    getIncline: (_req, res) => {
+        const treadmillIncline = treadmill.currentIncline.toFixed(1);
+        const logMessage = `Returning treadmill incline of ${treadmillIncline}% grade`;
         console.log(logMessage);
-        res.send(logMessage);
+        res.send(treadmillIncline);
+    },
+    calibrateIncline: (_req, res) => {
+        const logMessage = `Calibrating incline...`;
+        console.log(logMessage);
+        treadmill.calibrateIncline();
+        res.send(treadmillIncline);
     },
 };
+
+const loggerMiddleware = (req, res) => {
+    const logMessage = {
+        date: Date.now(),
+        endpoint: req.baseUrl,
+        params: req.params,
+        query: req.query,
+    };
+
+    console.log(logMessage);
+}
+
+// Console log details for each request.
+apiRouter.use(loggerMiddleware);
 
 // Go through each property on our routing object and link it
 // to an API endpoint URL.

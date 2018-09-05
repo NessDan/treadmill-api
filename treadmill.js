@@ -56,15 +56,15 @@ const treadmill = {
                 treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
                 const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
 
-                console.log('targ: ', treadmill.targetSpeed.toFixed(2));
-                console.log('cur: ', treadmill.currentSpeed.toFixed(2));
+                console.log('targ: ', treadmill.targetSpeed.toFixed(1));
+                console.log('cur: ', treadmill.currentSpeed.toFixed(1));
                 console.log('duty: ', newDutyCycle);
 
                 speedWire.hardwarePwmWrite(speedWireFrequency, newDutyCycle);
             }
         }, dutyCycleUpdaterFrequencyMs);
     },
-    goToSpeed: (mph) => {
+    setSpeed: (mph) => {
         if (mph.lt(4)) { // TODO: temporary safety check
             treadmill.targetSpeed = mph;
         }
