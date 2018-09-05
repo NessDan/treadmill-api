@@ -10,7 +10,7 @@ const routing = {
         // TODO put in a constants file.
         let targetSpeed = new Decimal(1); // Default mph.
 
-        if (req.query && req.query.mph && typeof req.query.mph === "number") {
+        if (req.query && req.query.mph) {
             targetSpeed = new Decimal(req.query.mph);
         }
 
