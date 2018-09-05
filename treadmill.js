@@ -51,9 +51,9 @@ const treadmill = {
                 speedChange = new Decimal(-0.1);
             }
 
-            console.log('targ: ', treadmill.targetSpeed);
-            console.log('cur: ', treadmill.currentSpeed);
-            console.log('duty: ', newDutyCycle);
+            console.log('targ: ', treadmill.targetSpeed.toFixed(2));
+            console.log('cur: ', treadmill.currentSpeed.toFixed(2));
+            console.log('duty: ', newDutyCycle.toNumber());
 
 
             // TODO: temporary safety check Cap speed at 4mph
