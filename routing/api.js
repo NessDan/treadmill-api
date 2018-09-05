@@ -57,15 +57,16 @@ const routing = {
     },
 };
 
-const loggerMiddleware = (req, res) => {
+const loggerMiddleware = (req, _res, next) => {
     const logMessage = {
         date: Date.now(),
-        endpoint: req.baseUrl,
+        endpoint: req.originalUrl,
         params: req.params,
         query: req.query,
     };
 
     console.log(logMessage);
+    next();
 }
 
 // Console log details for each request.
