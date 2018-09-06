@@ -68,7 +68,7 @@ const treadmill = {
     setSpeed: (mph) => {
         // TODO: The 4 needs to be in a constant, safety check
         if (mph.isInt() && mph.lt(4) && !mph.isNeg()) {
-            const mphRounded = mph.toFixed(1);
+            const mphRounded = mph.toDP(1);
             treadmill.targetSpeed = mphRounded;
         }
     },
