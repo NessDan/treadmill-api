@@ -66,8 +66,9 @@ const treadmill = {
         }, dutyCycleUpdaterFrequencyMs);
     },
     setSpeed: (mph) => {
-        if (mph.lt(4)) { // TODO: temporary safety check
-            const mphRounded = mph.toFixed(1); // Make sure we only ever have 1 decimal point.
+        // TODO: The 4 needs to be in a constant, safety check
+        if (mph.isInt() && mph.lt(4) && !mph.isNeg()) {
+            const mphRounded = mph.toFixed(1);
             treadmill.targetSpeed = mphRounded;
         }
     },
