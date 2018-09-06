@@ -66,7 +66,7 @@ const treadmill = {
         }, dutyCycleUpdaterFrequencyMs);
     },
     setSpeed: (mph) => {
-        const mphUnsafe = Number.parseFloat(mph);
+        const mphUnsafe = Number.parseFloat(mph); // In case someone sent us a string-string...
         const mphDecimal = new Decimal(mphUnsafe);
         // TODO: The 4 needs to be in a constant, safety check
         if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(4)) {
