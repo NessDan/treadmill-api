@@ -8,7 +8,6 @@ const declineWire = new Gpio(26, { mode: Gpio.OUTPUT });
 const Decimal = require('decimal.js');
 
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
-// TODO handle precision from setSpeed (if end user puts 1.54, bring precision to 1.5)
 // TODO handle negative from setSpeed (if anything < 0 is inputted, bring it to 0)
 const treadmill = {
     initialize: () => {
@@ -68,7 +67,8 @@ const treadmill = {
     },
     setSpeed: (mph) => {
         if (mph.lt(4)) { // TODO: temporary safety check
-            treadmill.targetSpeed = mph;
+            const mphRounded = mph.toFixed(1); // Make sure we only ever have 1 decimal point.
+            treadmill.targetSpeed = mphRounded;
         }
     },
     speedWireOn: (targetDutyCycle) => {
