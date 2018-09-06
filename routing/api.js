@@ -7,7 +7,7 @@ const Decimal = require('decimal.js');
 const routing = {
     setSpeed: (req, res) => {
         if (req.query && req.query.mph) {
-            const mph = new Decimal(req.query.mph);
+            const mph = req.query.mph;
 
             treadmill.setSpeed(mph);
             res.send(mph);

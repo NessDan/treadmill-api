@@ -66,10 +66,13 @@ const treadmill = {
         }, dutyCycleUpdaterFrequencyMs);
     },
     setSpeed: (mph) => {
-        // TODO: The 4 needs to be in a constant, safety check
-        if (mph.isInt() && mph.lt(4) && !mph.isNeg()) {
-            const mphRounded = mph.toDP(1);
-            treadmill.targetSpeed = mphRounded;
+        if (isInt(mph)) {
+            const mphDecimal = new Decimal(mph);
+            // TODO: The 4 needs to be in a constant, safety check
+            if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(4)) {
+                const mphRounded = mphDecimal.toDP(1);
+                treadmill.targetSpeed = mphRounded;
+            }
         }
     },
     speedWireOn: (targetDutyCycle) => {
