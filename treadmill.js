@@ -105,9 +105,7 @@ const treadmill = {
         });
     },
     constants: {
-        // All numbers at 1/10 (so a "1" is really ".1")
-        speedStep: 1,
-        inclineStep: 5,
+
     }
 };
 
