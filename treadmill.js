@@ -1,10 +1,10 @@
 // TODO Implement bigint to support floating point numbers.
 
 const Gpio = require('pigpio').Gpio;
-const speedWire = new Gpio(18, { mode: Gpio.OUTPUT });
-const speedInfoWire = new Gpio(25, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN });
-const inclineWire = new Gpio(19, { mode: Gpio.OUTPUT });
-const declineWire = new Gpio(26, { mode: Gpio.OUTPUT });
+const speedWire = new Gpio(18, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
+const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.EITHER_EDGE });
+const inclineWire = new Gpio(19, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
+const declineWire = new Gpio(26, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const Decimal = require('decimal.js');
 
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
@@ -94,6 +94,15 @@ const treadmill = {
     declineWireOff: () => {
         console.log(`Flipping the decline wire off`);
         declineWire.digitalWrite(0);
+    },
+    calibrateIncline: () => {
+        speedInfoWire.on('interrupt', (level) => {
+            // Everytime the incline motor sends a pulse, this should trigger.
+            // Set some sort of listener so that when we stop receiving this signal
+            // to know we've reached MAXIMUM CLIIIINE
+            // TODO: See how many pulses it takes to get to stable incline.
+            // Probably best to use the recorded video to get an average feel for it.
+        });
     },
     constants: {
         // All numbers at 1/10 (so a "1" is really ".1")
