@@ -17,6 +17,7 @@ const treadmill = {
 
         speedInfoWire.on('interrupt', (level) => {
             ticksPerMin += 1;
+            console.log(ticksPerMin);
         });
 
         setInterval(() => {
@@ -114,6 +115,20 @@ const treadmill = {
             // TODO: See how many pulses it takes to get to stable incline.
             // Probably best to use the recorded video to get an average feel for it.
         });
+    },
+    getSpeed: () => {
+        // ticks per min: 907967
+        // ticks per min: 904348
+        // ticks per min: 904434
+        // ticks per min: 905307
+        // ticks per min: 904922
+        // ticks per min: 904966
+        // ticks per min: 918236
+        // ticks per min: 932304
+        // ticks per min: 932110
+        // ticks per min: 931905
+        // ticks per min: 932081
+        // average after warmed up per min: 932100
     },
     constants: {
 
