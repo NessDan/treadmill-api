@@ -53,8 +53,9 @@ const treadmill = {
             }
 
             // TODO: temporary safety check Cap speed at 4mph
-            if (speedChange && treadmill.currentSpeed.lte(4)) {
-                treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
+            // if (speedChange && treadmill.currentSpeed.lte(4)) {
+            if (speedChange && treadmill.currentSpeed.lte(16)) {
+            treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
                 const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
 
                 console.log('targ: ', treadmill.targetSpeed.toNumber());
@@ -69,7 +70,8 @@ const treadmill = {
         const mphUnsafe = Number.parseFloat(mph); // In case someone sent us a string-string...
         const mphDecimal = new Decimal(mphUnsafe);
         // TODO: The 4 needs to be in a constant, safety check
-        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(4)) {
+        // if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(4)) {
+        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(16)) {
             const mphRounded = mphDecimal.toDP(1);
             treadmill.targetSpeed = mphRounded;
         }
