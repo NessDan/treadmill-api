@@ -31,7 +31,7 @@ const treadmill = {
             // At 20Hz, 83000 hardwarePwmWrite gets ~0.438v which is close to 2mph
             // Following this, increments of 1mph = 15000 duty cycle.
             const dutyCycleFloor = new Decimal(53000); // Technically "0mph" following above logic.
-            const mphToDutyCycleMultiplier = new Decimal(15000); // Increments of 1mph = 15000 duty cycle.
+            const mphToDutyCycleMultiplier = new Decimal(93750); // Increments of 1mph = 15000 duty cycle.
             // const lowestDutyCycle = new Decimal(60000); // Treadmill's lowest speed was 0.5mph so cap it off here just to be safe.
 
             let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
@@ -53,8 +53,7 @@ const treadmill = {
             }
 
             // TODO: temporary safety check Cap speed at 4mph
-            // if (speedChange && treadmill.currentSpeed.lte(4)) {
-            if (speedChange && treadmill.currentSpeed.lte(16)) {
+            if (speedChange && treadmill.currentSpeed.lt(4)) {
             treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
                 const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
 
@@ -70,8 +69,7 @@ const treadmill = {
         const mphUnsafe = Number.parseFloat(mph); // In case someone sent us a string-string...
         const mphDecimal = new Decimal(mphUnsafe);
         // TODO: The 4 needs to be in a constant, safety check
-        // if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(4)) {
-        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(16)) {
+        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(4)) {
             const mphRounded = mphDecimal.toDP(1);
             treadmill.targetSpeed = mphRounded;
         }
