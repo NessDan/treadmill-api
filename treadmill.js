@@ -2,9 +2,9 @@
 
 const Gpio = require('pigpio').Gpio;
 const speedWire = new Gpio(18, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
-const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.EITHER_EDGE });
 const inclineWire = new Gpio(19, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const declineWire = new Gpio(26, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
+const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.EITHER_EDGE });
 const Decimal = require('decimal.js');
 
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
@@ -12,6 +12,17 @@ const Decimal = require('decimal.js');
 const treadmill = {
     initialize: () => {
         treadmill.achieveTargetSpeedLoop();
+
+        let ticksPerMin = 0;
+
+        speedInfoWire.on('interrupt', (level) => {
+            ticksPerMin += 1;
+        });
+
+        setInterval(() => {
+            console.log('ticks per min:', ticksPerMin);
+            ticksPerMin = 0;
+        }, 60000);
     },
     targetSpeed: new Decimal(0),
     currentSpeed: new Decimal(0),
