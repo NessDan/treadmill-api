@@ -37,19 +37,37 @@ const treadmill = {
         const dutyCycleUpdaterFrequencyMs = 183;
 
         const translateMphToDutyCycle = (mph) => {
-            // Voltage this 0.36v for 1mph / 0.44v for 2mph / 1.24v for 12mph
-            // Following this, increments 0.073v per 1mph
-            // At 20Hz, 13650 hardwarePwmWrite gets 0.550v which is 1mph
-            // At 20Hz, 15950 hardwarePwmWrite gets 0.597v which is 2mph
-            // Following this,
-            const dutyCycleFloor = new Decimal(11350); // Technically "0mph" following above logic (13650 - 1mph duty cycle step)
-            const mphToDutyCycleMultiplier = new Decimal(2300); // Increments of 1mph = 2300 duty cycle.
-            // const lowestDutyCycle = new Decimal(60000); // Treadmill's lowest speed was 0.5mph so cap it off here just to be safe.
+            /* EYEBALL TESTING
+            At 70000 we get motion, super slow but it blinks normally and at least turns.
+            80000 closer to .5mph?
+            90000 no diff
+            100000 no diff
+            150000 no diff
+            200000 speed increased. Close to 1mph+?
+            300000 speed inc. A little lower than 3mph
+            350000 speed inc. Feels linear increasing. This is around 4 or 5 mph EDIT 3.5mph according to google fit.
+            350000 speed 3.53mph according to google fit.
+            300000 speed is 3.11 mph
+            400000 is 5.5mph from google fit
+            150000 should be floor, slowest speed before anything added to it increases speed.
+
+            50760 is the mph multiplier (Just going off of feel)
+
+
+            1mph at 240fps = 1 rotation every 3.17s (Getting this at 205000)
+            2mph at 240fps = 1 rotation every 1.74s (Getting this at 260000)
+            1mph increments = 55000
+
+            */
+
+            // Using the above testing, I figured out the floor duty cycle
+            const dutyCycleFloor = new Decimal(150000); // Slowest speed before things added increases speed Runs around 0.5mph?
+            const mphToDutyCycleMultiplier = new Decimal(55000); // Increments of 1mph = 55000 duty cycle
 
             let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
 
             if (dutyCycleForMph.lte(dutyCycleFloor)) {
-                return 0; // If we're asked to get the duty cycle for anything below 0mph, just return 0.
+                return 0; // If we're asked to get the duty cycle for anything below 0.5mph, just return 0.
             }
 
             return dutyCycleForMph.toNumber(); // pigpio is expecting a number.
