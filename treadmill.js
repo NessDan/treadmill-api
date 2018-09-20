@@ -131,6 +131,7 @@ const treadmill = {
             // Once the treadmill starts moving, wait 2.5s and then
             // kick off a 60s-interval that tracks the tachs.
             if (!tachPerMinInterval) {
+                tachPerMinInterval = true; // temporarily set this so it doesn't get called again
                 setTimeout(() => {
                     console.log("Measuring tach per minute...");
                     ticksPerMin = 0;
