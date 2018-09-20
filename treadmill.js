@@ -128,22 +128,24 @@ const treadmill = {
         let tachPerMinInterval;
 
         speedInfoWire.on('interrupt', (level) => {
-            // Once the treadmill starts moving, wait 2.5s and then
-            // kick off a 60s-interval that tracks the tachs.
-            if (!tachPerMinInterval) {
-                tachPerMinInterval = true; // temporarily set this so it doesn't get called again
-                setTimeout(() => {
-                    console.log("Measuring tach per minute...");
-                    ticksPerMin = 0;
-                    tachPerMinInterval = setInterval(() => {
-                        console.log('ticks per min:', ticksPerMin);
+            if (level === 1) {
+                // Once the treadmill starts moving, wait 2.5s and then
+                // kick off a 60s-interval that tracks the tachs.
+                if (!tachPerMinInterval) {
+                    tachPerMinInterval = true; // temporarily set this so it doesn't get called again
+                    setTimeout(() => {
+                        console.log("Measuring tach per minute...");
                         ticksPerMin = 0;
-                    }, 60000);
-                }, 2500);
-            }
+                        tachPerMinInterval = setInterval(() => {
+                            console.log('ticks per min:', ticksPerMin);
+                            ticksPerMin = 0;
+                        }, 60000);
+                    }, 2500);
+                }
 
-            ticksPerMin += 1;
-            console.log(ticksPerMin);
+                ticksPerMin += 1;
+                console.log(ticksPerMin);
+            }
         });
 
     },
