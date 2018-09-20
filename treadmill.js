@@ -126,12 +126,11 @@ const treadmill = {
     measureTachTiming: () => {
         let ticksPerMin = 0;
         let tachPerMinInterval;
-        let lastTenTachs = [];
+        let lastTenTachTimes = [];
 
         // From testing:
         // 1mph = 154 ticks
         speedInfoWire.on('alert', (level, timestamp) => {
-            console.log(timestamp);
             if (level === 1) {
                 if (treadmill.currentSpeed.eq(treadmill.targetSpeed)) {
                     if (!tachPerMinInterval) {
@@ -146,6 +145,18 @@ const treadmill = {
                         }, 2500);
                     }
 
+                    lastTenTachTimes.push(timestamp);
+
+                    if (lastTenTachTimes.length === 10) {
+                        const timeBetweenTachs = lastTenTachTimes.map((tachTime, idx) => {
+                            if (idx === lastTenTachTimes.length) {
+                                return;
+                            }
+
+                            return lastTenTachTimes[idx + 1] - tachTime;
+                        }).reduce((prev, cur) => prev + cur) / lastTenTachTimes.length - 1;
+                        console.log('time between tachs: ', timeBetweenTachs);
+                    }
                     ticksPerMin += 1;
                     console.log(ticksPerMin);
                 } else {
