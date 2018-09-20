@@ -43,7 +43,7 @@ const treadmill = {
             // At 20Hz, 83000 hardwarePwmWrite gets ~0.438v which is close to 2mph
             // Following this, increments of 1mph = 15000 duty cycle.
             const dutyCycleFloor = new Decimal(53000); // Technically "0mph" following above logic.
-            const mphToDutyCycleMultiplier = new Decimal(93750); // Increments of 1mph = 15000 duty cycle.
+            const mphToDutyCycleMultiplier = new Decimal(15000); // Increments of 1mph = 15000 duty cycle.
             // const lowestDutyCycle = new Decimal(60000); // Treadmill's lowest speed was 0.5mph so cap it off here just to be safe.
 
             let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
