@@ -4,7 +4,7 @@ const Gpio = require('pigpio').Gpio;
 const speedWire = new Gpio(18, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const inclineWire = new Gpio(19, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const declineWire = new Gpio(26, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
-const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
+const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, alert: true, edge: Gpio.RISING_EDGE });
 const Decimal = require('decimal.js');
 
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
@@ -12,7 +12,7 @@ const Decimal = require('decimal.js');
 const treadmill = {
     initialize: () => {
         treadmill.achieveTargetSpeedLoop();
-        treadmill.measureTachPerMin();
+        treadmill.measureTachTiming();
     },
     targetSpeed: new Decimal(0),
     currentSpeed: new Decimal(0),
@@ -123,13 +123,15 @@ const treadmill = {
             // Probably best to use the recorded video to get an average feel for it.
         });
     },
-    measureTachPerMin: () => {
+    measureTachTiming: () => {
         let ticksPerMin = 0;
         let tachPerMinInterval;
+        let lastTenTachs = [];
 
         // From testing:
         // 1mph = 154 ticks
-        speedInfoWire.on('interrupt', (level) => {
+        speedInfoWire.on('alert', (level, timestamp) => {
+            console.log(timestamp);
             if (level === 1) {
                 if (treadmill.currentSpeed.eq(treadmill.targetSpeed)) {
                     if (!tachPerMinInterval) {
