@@ -4,7 +4,7 @@ const Gpio = require('pigpio').Gpio;
 const speedWire = new Gpio(18, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const inclineWire = new Gpio(19, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const declineWire = new Gpio(26, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
-const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, alert: true, edge: Gpio.RISING_EDGE });
+const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
 const Decimal = require('decimal.js');
 
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
@@ -51,7 +51,7 @@ const treadmill = {
 
             // Using the above testing, I figured out the floor duty cycle
             const dutyCycleFloor = new Decimal(150000); // Slowest speed before things added increases speed Runs around 0.5mph?
-            const mphToDutyCycleMultiplier = new Decimal(61000); // Increments of 1mph = 55000 duty cycle
+            const mphToDutyCycleMultiplier = new Decimal(60000); // Increments of 1mph = 55000 duty cycle
 
             let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
 
@@ -126,11 +126,10 @@ const treadmill = {
     measureTachTiming: () => {
         let ticksPerMin = 0;
         let tachPerMinInterval;
-        let lastTenTachTimes = [];
 
         // From testing:
         // 1mph = 154 ticks
-        speedInfoWire.on('alert', (level, timestamp) => {
+        speedInfoWire.on('interrupt', (level) => {
             if (level === 1) {
                 if (treadmill.currentSpeed.eq(treadmill.targetSpeed)) {
                     if (!tachPerMinInterval) {
@@ -145,18 +144,6 @@ const treadmill = {
                         }, 2500);
                     }
 
-                    lastTenTachTimes.push(timestamp);
-
-                    if (lastTenTachTimes.length === 10) {
-                        const timeBetweenTachs = lastTenTachTimes.map((tachTime, idx) => {
-                            if (idx === lastTenTachTimes.length) {
-                                return;
-                            }
-
-                            return lastTenTachTimes[idx + 1] - tachTime;
-                        }).reduce((prev, cur) => prev + cur) / lastTenTachTimes.length - 1;
-                        console.log('time between tachs: ', timeBetweenTachs);
-                    }
                     ticksPerMin += 1;
                     console.log(ticksPerMin);
                 } else {
