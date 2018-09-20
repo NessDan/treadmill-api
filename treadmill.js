@@ -51,7 +51,7 @@ const treadmill = {
 
             // Using the above testing, I figured out the floor duty cycle
             const dutyCycleFloor = new Decimal(150000); // Slowest speed before things added increases speed Runs around 0.5mph?
-            const mphToDutyCycleMultiplier = new Decimal(60000); // Increments of 1mph = 55000 duty cycle
+            const mphToDutyCycleMultiplier = new Decimal(61000); // Increments of 1mph = 55000 duty cycle
 
             let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
 
