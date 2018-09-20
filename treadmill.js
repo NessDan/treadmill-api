@@ -131,7 +131,7 @@ const treadmill = {
         // 1mph = 154 ticks
         speedInfoWire.on('interrupt', (level) => {
             if (level === 1) {
-                if (treadmill.actualSpeed.eq(treadmill.targetSpeed)) {
+                if (treadmill.currentSpeed.eq(treadmill.targetSpeed)) {
                     if (!tachPerMinInterval) {
                         tachPerMinInterval = true; // temporarily set this so it doesn't get called again
                         setTimeout(() => {
