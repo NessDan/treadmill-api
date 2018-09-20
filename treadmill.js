@@ -40,18 +40,17 @@ const treadmill = {
             400000 is 5.5mph from google fit
             150000 should be floor, slowest speed before anything added to it increases speed.
 
-            50760 is the mph multiplier (Just going off of feel)
 
-
+            Using stock console:
             1mph at 240fps = 1 rotation every 3.17s (Getting this at 205000)
-            2mph at 240fps = 1 rotation every ~~1.74s? (Getting this at 260000)
-            1mph increments = 55000
-
+            At 1mph, the tachometer triggers 154 times on average.
+            That means 2mph would be 308 tach triggers.
+            I finally reached 308 tach triggers using 61400 as a mph multiplier
             */
 
             // Using the above testing, I figured out the floor duty cycle
             const dutyCycleFloor = new Decimal(150000); // Slowest speed before things added increases speed Runs around 0.5mph?
-            const mphToDutyCycleMultiplier = new Decimal(61500); // Increments of 1mph = 55000 duty cycle
+            const mphToDutyCycleMultiplier = new Decimal(61400); // Increments of 1mph = 61400 duty cycle
 
             let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
 
