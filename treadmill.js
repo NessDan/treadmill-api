@@ -4,7 +4,7 @@ const Gpio = require('pigpio').Gpio;
 const speedWire = new Gpio(18, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const inclineWire = new Gpio(19, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const declineWire = new Gpio(26, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
-const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.EITHER_EDGE });
+const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
 const Decimal = require('decimal.js');
 
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
@@ -12,18 +12,7 @@ const Decimal = require('decimal.js');
 const treadmill = {
     initialize: () => {
         treadmill.achieveTargetSpeedLoop();
-
-        let ticksPerMin = 0;
-
-        speedInfoWire.on('interrupt', (level) => {
-            ticksPerMin += 1;
-            console.log(ticksPerMin);
-        });
-
-        setInterval(() => {
-            console.log('ticks per min:', ticksPerMin);
-            ticksPerMin = 0;
-        }, 60000);
+        treadmill.measureTachPerMin();
     },
     targetSpeed: new Decimal(0),
     currentSpeed: new Decimal(0),
@@ -133,6 +122,29 @@ const treadmill = {
             // TODO: See how many pulses it takes to get to stable incline.
             // Probably best to use the recorded video to get an average feel for it.
         });
+    },
+    measureTachPerMin: () => {
+        let ticksPerMin = 0;
+        let tachPerMinInterval;
+
+        speedInfoWire.on('interrupt', (level) => {
+            // Once the treadmill starts moving, wait 2.5s and then
+            // kick off a 60s-interval that tracks the tachs.
+            if (!tachPerMinInterval) {
+                setTimeout(() => {
+                    console.log("Measuring tach per minute...");
+                    ticksPerMin = 0;
+                    tachPerMinInterval = setInterval(() => {
+                        console.log('ticks per min:', ticksPerMin);
+                        ticksPerMin = 0;
+                    }, 60000);
+                }, 2500);
+            }
+
+            ticksPerMin += 1;
+            console.log(ticksPerMin);
+        });
+
     },
     getSpeed: () => {
         // ticks per min: 907967
