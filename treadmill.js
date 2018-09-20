@@ -44,14 +44,14 @@ const treadmill = {
 
 
             1mph at 240fps = 1 rotation every 3.17s (Getting this at 205000)
-            2mph at 240fps = 1 rotation every 1.74s (Getting this at 260000)
+            2mph at 240fps = 1 rotation every ~~1.74s? (Getting this at 260000)
             1mph increments = 55000
 
             */
 
             // Using the above testing, I figured out the floor duty cycle
             const dutyCycleFloor = new Decimal(150000); // Slowest speed before things added increases speed Runs around 0.5mph?
-            const mphToDutyCycleMultiplier = new Decimal(55000); // Increments of 1mph = 55000 duty cycle
+            const mphToDutyCycleMultiplier = new Decimal(57000); // Increments of 1mph = 55000 duty cycle
 
             let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
 
@@ -124,11 +124,15 @@ const treadmill = {
         });
     },
     measureTachPerMin: () => {
+        let measuringSpeed = new Decimal(0);
         let ticksPerMin = 0;
         let tachPerMinInterval;
 
+        // From testing:
+        // 1mph = 154 ticks
         speedInfoWire.on('interrupt', (level) => {
             if (level === 1) {
+                if (measuringSpeed !== treadmill.actualSpeed)
                 // Once the treadmill starts moving, wait 2.5s and then
                 // kick off a 60s-interval that tracks the tachs.
                 if (!tachPerMinInterval) {
