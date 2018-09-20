@@ -42,14 +42,13 @@ const treadmill = {
             // At 20Hz, 68000 hardwarePwmWrite gets ~0.364v which is close to 1mph
             // At 20Hz, 83000 hardwarePwmWrite gets ~0.438v which is close to 2mph
             // Following this, increments of 1mph = 15000 duty cycle.
-            const dutyCycleFloor = new Decimal(53000); // Technically "0mph" following above logic.
             const mphToDutyCycleMultiplier = new Decimal(15000); // Increments of 1mph = 15000 duty cycle.
             // const lowestDutyCycle = new Decimal(60000); // Treadmill's lowest speed was 0.5mph so cap it off here just to be safe.
 
-            let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
+            let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph);
 
-            if (dutyCycleForMph.lte(dutyCycleFloor)) {
-                return 0; // If we're asked to get the duty cycle for anything below 0.5mph, just return 0.
+            if (dutyCycleForMph.lte(0)) {
+                return 0;
             }
 
             return dutyCycleForMph.toNumber(); // pigpio is expecting a number.
