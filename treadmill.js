@@ -124,7 +124,6 @@ const treadmill = {
         });
     },
     measureTachPerMin: () => {
-        let measuringSpeed = new Decimal(0);
         let ticksPerMin = 0;
         let tachPerMinInterval;
 
@@ -132,23 +131,28 @@ const treadmill = {
         // 1mph = 154 ticks
         speedInfoWire.on('interrupt', (level) => {
             if (level === 1) {
-                if (measuringSpeed !== treadmill.actualSpeed)
-                // Once the treadmill starts moving, wait 2.5s and then
-                // kick off a 60s-interval that tracks the tachs.
-                if (!tachPerMinInterval) {
-                    tachPerMinInterval = true; // temporarily set this so it doesn't get called again
-                    setTimeout(() => {
-                        console.log("Measuring tach per minute...");
-                        ticksPerMin = 0;
-                        tachPerMinInterval = setInterval(() => {
-                            console.log('ticks per min:', ticksPerMin);
-                            ticksPerMin = 0;
-                        }, 60000);
-                    }, 2500);
-                }
+                if (treadmill.actualSpeed !== treadmill.targetSpeed) {
+                    if (tachPerMinInterval) {
+                        clearInterval(tachPerMinInterval);
+                    }
 
-                ticksPerMin += 1;
-                console.log(ticksPerMin);
+                    ticksPerMin = 0;
+                } else {
+                    if (!tachPerMinInterval) {
+                        tachPerMinInterval = true; // temporarily set this so it doesn't get called again
+                        setTimeout(() => {
+                            console.log("Measuring tach per minute...");
+                            ticksPerMin = 0;
+                            tachPerMinInterval = setInterval(() => {
+                                console.log('ticks per min:', ticksPerMin);
+                                ticksPerMin = 0;
+                            }, 60000);
+                        }, 2500);
+                    }
+
+                    ticksPerMin += 1;
+                    console.log(ticksPerMin);
+                }
             }
         });
 
