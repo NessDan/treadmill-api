@@ -138,12 +138,12 @@ const treadmill = {
 
                 // Incline change is positive when going up,
                 // But if the target is below our actual,
-                // We slow down by negating the speedChange
+                // We slow down by negating the inclineChange
                 if (treadmill.targetIncline.lt(treadmill.currentIncline)) {
                     inclineChange = inclineChange.neg();
                 }
 
-                const nextStepInIncline = treadmill.currentIncline.add(speedChange);
+                const nextStepInIncline = treadmill.currentIncline.add(inclineChange);
 
                 if (isInclining && nextStepInIncline.gt(treadmill.targetIncline)) {
                     treadmill.currentIncline = treadmill.targetIncline;
