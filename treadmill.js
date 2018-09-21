@@ -5,7 +5,7 @@ const speedWire = new Gpio(18, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN })
 const inclineWire = new Gpio(19, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const declineWire = new Gpio(26, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
-const inclineInfoWire = new Gpio(23, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
+const inclineInfoWire = new Gpio(6, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
 const Decimal = require('decimal.js');
 const {
     performance
@@ -96,6 +96,13 @@ const treadmill = {
             treadmill.targetSpeed = mphRounded;
         }
     },
+    setIncline: (grade) => {
+        if (inclineWire.digitalRead()) {
+            inclineWire.digitalWrite(0);
+        } else {
+            inclineWire.digitalWrite(1);
+        }
+    },
     speedWireOn: (targetDutyCycle) => {
     },
     speedWireOff: () => {
@@ -133,7 +140,9 @@ const treadmill = {
                 resetInterval = setTimeout(() => {
                     console.log('counted: ', tickAccumulator);
                     tickAccumulator = 0;
-                }, 1000);
+                    treadmill.inclineWireOff();
+                    treadmill.declineWireOff();
+                }, 3000);
 
                 tickAccumulator += 1;
             }

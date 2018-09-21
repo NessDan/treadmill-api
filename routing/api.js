@@ -23,7 +23,7 @@ const routing = {
         if (req.query && req.query.grade) {
             const grade = new Decimal(req.query.grade);
 
-            treadmill.goToIncline(grade);
+            treadmill.setIncline(grade);
             res.send(grade);
         } else {
             res.send(grade);
