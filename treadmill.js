@@ -125,12 +125,13 @@ const treadmill = {
     measureTachTiming: () => {
         let ticksPerMin = 0;
         let tachPerMinInterval;
+        let previousTachTimestamp;
 
         // From testing:
         // 1mph = 154 ticks
         speedInfoWire.on('interrupt', (level) => {
             if (level === 1) {
-                if (treadmill.currentSpeed.eq(treadmill.targetSpeed)) {
+                if (treadmill.currentSpeed.eq(treadmill.targetSpeed) && !treadmill.targetSpeed.isZero()) {
                     if (!tachPerMinInterval) {
                         tachPerMinInterval = true; // temporarily set this so it doesn't get called again
                         setTimeout(() => {
@@ -144,7 +145,15 @@ const treadmill = {
                     }
 
                     ticksPerMin += 1;
-                    console.log(ticksPerMin);
+                    // console.log(ticksPerMin);
+
+                    const timeNow = performance.now();
+
+                    if (previousTachTimestamp) {
+                        console.log(timeNow - previousTachTimestamp);
+                    }
+
+                    previousTachTimestamp = timeNow;
                 } else {
                     if (tachPerMinInterval) {
                         clearInterval(tachPerMinInterval);
