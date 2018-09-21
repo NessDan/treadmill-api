@@ -158,8 +158,13 @@ const treadmill = {
                 }
             } else {
                 // We hit our target! Turn the wires off.
-                treadmill.declineWireOff();
-                treadmill.inclineWireOff();
+                if (inclineWire.digitalRead()) {
+                    treadmill.inclineWireOff();
+                }
+
+                if (declineWire.digitalRead()) {
+                    treadmill.declineWireOff();
+                }
             }
         }, 10);
 
