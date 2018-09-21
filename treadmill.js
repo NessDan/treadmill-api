@@ -170,7 +170,7 @@ const treadmill = {
 
     },
     setIncline: (grade) => {
-        targetIncline = grade;
+        treadmill.targetIncline = grade;
     },
     speedWireOn: (targetDutyCycle) => {
     },
