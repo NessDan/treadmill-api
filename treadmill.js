@@ -126,7 +126,8 @@ const treadmill = {
         });
     },
     measureTachTiming: () => {
-        let ticksPerMin = 0;
+        let tickAccumulator = 0;
+        let timingPerRotation = [];
         let tachPerMinInterval;
         let previousTachTimestamp;
 
@@ -139,21 +140,22 @@ const treadmill = {
                         tachPerMinInterval = true; // temporarily set this so it doesn't get called again
                         setTimeout(() => {
                             console.log("Measuring tach per minute...");
-                            ticksPerMin = 0;
+                            tickAccumulator = 0;
                             tachPerMinInterval = setInterval(() => {
-                                console.log('ticks per min:', ticksPerMin);
-                                ticksPerMin = 0;
-                            }, 60000);
+                                const averageTimePerRotationInMs = timingPerRotation.reduce((prev, cur) => prev + cur) / timingPerRotation.length;
+                                console.log('ticks per min:', tickAccumulator * 6);
+                                console.log('time per tick (ms):', averageTimePerRotationInMs);
+                                tickAccumulator = 0;
+                            }, 10000);
                         }, 2500);
                     }
 
-                    ticksPerMin += 1;
-                    // console.log(ticksPerMin);
+                    tickAccumulator += 1;
 
                     const timeNow = performance.now();
 
                     if (previousTachTimestamp) {
-                        console.log(timeNow - previousTachTimestamp);
+                        timingPerRotation.push(timeNow - previousTachTimestamp);
                     }
 
                     previousTachTimestamp = timeNow;
@@ -162,7 +164,7 @@ const treadmill = {
                         clearInterval(tachPerMinInterval);
                     }
 
-                    ticksPerMin = 0;
+                    tickAccumulator = 0;
                 }
             }
         });
