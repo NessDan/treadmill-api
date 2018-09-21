@@ -97,6 +97,7 @@ const treadmill = {
         }
     },
     setIncline: (grade) => {
+        console.log('start: ', performance.now());
         if (inclineWire.digitalRead()) {
             inclineWire.digitalWrite(0);
         } else {
@@ -132,8 +133,10 @@ const treadmill = {
         let resetInterval;
 
         // From testing:
-        // 1mph ~= 162 ticks in a minute
-        // 1mph ~= 370ms per rotation
+        // From bottom to top: 74 ticks of level === 1
+        // Since the treadmill goes from Grade 15% -> -3% (18 total):
+        // Each grade is 4.11111111 (74/18)
+        // Baseline would be 12.3333333 but we can't do percentages? Gotta figure out how to do this.
         inclineInfoWire.on('interrupt', (level) => {
             if (level === 1) {
                 clearTimeout(resetInterval);
@@ -145,6 +148,7 @@ const treadmill = {
                 }, 3000);
 
                 tickAccumulator += 1;
+                console.log('a tick:, ', performance.now());
             }
         });
     },
