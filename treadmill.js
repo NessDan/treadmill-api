@@ -15,8 +15,11 @@ const {
 // TODO handle negative from setSpeed (if anything < 0 is inputted, bring it to 0)
 const treadmill = {
     initialize: () => {
+        treadmill.inclineWireOff();
+        treadmill.declineWireOff();
         treadmill.achieveTargetSpeedLoop();
         treadmill.measureIncline();
+
     },
     targetSpeed: new Decimal(0),
     currentSpeed: new Decimal(0),
