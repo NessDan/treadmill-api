@@ -5,17 +5,18 @@ const speedWire = new Gpio(18, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN })
 const inclineWire = new Gpio(19, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const declineWire = new Gpio(26, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
+const inclineInfoWire = new Gpio(23, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
 const Decimal = require('decimal.js');
 const {
     performance
-  } = require('perf_hooks');
+} = require('perf_hooks');
 
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
 // TODO handle negative from setSpeed (if anything < 0 is inputted, bring it to 0)
 const treadmill = {
     initialize: () => {
         treadmill.achieveTargetSpeedLoop();
-        treadmill.measureTachTiming();
+        treadmill.measureIncline();
     },
     targetSpeed: new Decimal(0),
     currentSpeed: new Decimal(0),
@@ -117,12 +118,25 @@ const treadmill = {
         declineWire.digitalWrite(0);
     },
     calibrateIncline: () => {
-        speedInfoWire.on('interrupt', (level) => {
-            // Everytime the incline motor sends a pulse, this should trigger.
-            // Set some sort of listener so that when we stop receiving this signal
-            // to know we've reached MAXIMUM CLIIIINE
-            // TODO: See how many pulses it takes to get to stable incline.
-            // Probably best to use the recorded video to get an average feel for it.
+
+    },
+    measureIncline: () => {
+        let tickAccumulator = 0;
+        let resetInterval;
+
+        // From testing:
+        // 1mph ~= 162 ticks in a minute
+        // 1mph ~= 370ms per rotation
+        inclineInfoWire.on('interrupt', (level) => {
+            if (level === 1) {
+                clearTimeout(resetInterval);
+                resetInterval = setTimeout(() => {
+                    console.log('counted: ', tickAccumulator);
+                    tickAccumulator = 0;
+                }, 1000);
+
+                tickAccumulator += 1;
+            }
         });
     },
     measureTachTiming: () => {
@@ -132,8 +146,8 @@ const treadmill = {
         let previousTachTimestamp;
 
         // From testing:
-        // 1mph = 154 ticks in a minute
-        // 1mph = 195.52ms per every rotation
+        // 1mph ~= 162 ticks in a minute
+        // 1mph ~= 368ms per rotation
         speedInfoWire.on('interrupt', (level) => {
             if (level === 1) {
                 if (treadmill.currentSpeed.eq(treadmill.targetSpeed) && !treadmill.targetSpeed.isZero()) {
@@ -175,18 +189,6 @@ const treadmill = {
 
     },
     getSpeed: () => {
-        // ticks per min: 907967
-        // ticks per min: 904348
-        // ticks per min: 904434
-        // ticks per min: 905307
-        // ticks per min: 904922
-        // ticks per min: 904966
-        // ticks per min: 918236
-        // ticks per min: 932304
-        // ticks per min: 932110
-        // ticks per min: 931905
-        // ticks per min: 932081
-        // average after warmed up per min: 932100
     },
     constants: {
 
