@@ -17,12 +17,16 @@ const treadmill = {
     initialize: () => {
         treadmill.inclineWireOff();
         treadmill.declineWireOff();
-        treadmill.achieveTargetSpeedLoop();
-        treadmill.measureIncline();
+        treadmill.speedWireOff();
 
+        treadmill.achieveTargetSpeedLoop();
+        treadmill.achieveTargetInclineLoop();
+        treadmill.measureIncline();
     },
     targetSpeed: new Decimal(0),
     currentSpeed: new Decimal(0),
+    targetIncline: new Decimal(0), // This should be loaded from a file on load
+    currentIncline: new Decimal(0), // This should be loaded from a file on load
     achieveTargetSpeedLoop: () => {
         const speedWireFrequency = 20; // Treadmill uses 20Hz freq from testing.
         // Going from 0mph to 6mph takes roughly 11s
@@ -104,18 +108,71 @@ const treadmill = {
             treadmill.targetSpeed = mphRounded;
         }
     },
+    achieveTargetInclineLoop: () => {
+        const ticksPerGrade = new Decimal(4.111111);
+        const translateGradeToTicks = (grade) => new Decimal(grade).mul(ticksPerGrade);
+
+        // TODO WHEN YOU COME BACK TOMORROW:
+        // target and current incline are going to be saved as GRADES
+        // because of this, our calculations below are odd (since we are working in TACH TICKS)
+
+        // IDEA: When target and current incline match, save to disk. Whenever they don't match, save a "bad"
+        // to the file and when we boot, if it's "bad", force a re-calibrate.
+        setInterval(() => {
+            let haveWeReachedTarget = false;
+            let isInclining = false;
+            let isDeclining = false;
+            let targetWire;
+
+            if (treadmill.targetIncline.lt(treadmill.currentIncline)) {
+                isDeclining = true;
+                targetWire = declineWire;
+            } else if (treadmill.targetIncline.gt(treadmill.currentIncline)) {
+                isInclining = true;
+                targetWire = inclineWire;
+            } else {
+                haveWeReachedTarget = true;
+            }
+
+            if (!haveWeReachedTarget) {
+                let inclineChange = new Decimal(0.04111);
+
+                // Incline change is positive when going up,
+                // But if the target is below our actual,
+                // We slow down by negating the speedChange
+                if (treadmill.targetIncline.lt(treadmill.currentIncline)) {
+                    inclineChange = inclineChange.neg();
+                }
+
+                const nextStepInIncline = treadmill.currentIncline.add(speedChange);
+
+                if (isInclining && nextStepInIncline.gt(treadmill.targetIncline)) {
+                    treadmill.currentIncline = treadmill.targetIncline;
+                } else if (isDeclining && nextStepInIncline.lt(treadmill.targetIncline)) {
+                    treadmill.currentIncline = treadmill.targetIncline;
+                } else {
+                    treadmill.currentIncline = nextStepInIncline;
+                }
+
+                if (!targetWire.digitalRead()) {
+                    targetWire.digitalWrite(1);
+                }
+            } else {
+                // We hit our target! Turn the wires off.
+                treadmill.declineWireOff();
+                treadmill.inclineWireOff();
+            }
+        }, 10);
+
+    },
     setIncline: (grade) => {
-        console.log('start: ', performance.now());
-        if (inclineWire.digitalRead()) {
-            inclineWire.digitalWrite(0);
-        } else {
-            inclineWire.digitalWrite(1);
-        }
+        targetIncline = grade;
     },
     speedWireOn: (targetDutyCycle) => {
     },
     speedWireOff: () => {
-        // speedWire.digitalWrite(0);
+        console.log(`Setting the speed duty cycle to 0`);
+        speedWire.hardwarePwmWrite(speedWireFrequency, 0);
     },
     inclineWireOn: () => {
         console.log(`Flipping the incline wire on`);
@@ -145,6 +202,12 @@ const treadmill = {
         // Since the treadmill goes from Grade 15% -> -3% (18 total):
         // Each grade is 4.11111111 (74/18)
         // Baseline would be 12.3333333 but we can't do percentages? Gotta figure out how to do this.
+        // For time, it takes ~68.5 seconds to go from bottom to top.
+        // This means we incline at 1.08s per tick, or 1080 ms per 1 tick.
+        // For time, it takes 70.2 seconds to go from top to bottom.
+        // This means we decline at 1.054s per tick, or 1054 ms per 1 tick.
+
+        // That makes the average time ~69.35 seconds.
         inclineInfoWire.on('interrupt', (level) => {
             if (level === 1) {
                 clearTimeout(resetInterval);
