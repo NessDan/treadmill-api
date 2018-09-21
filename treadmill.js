@@ -69,24 +69,29 @@ const treadmill = {
         };
 
         setInterval(() => {
-            let speedChange;
+            const haveWeReachedTarget = treadmill.targetSpeed.eq(treadmill.currentSpeed);
 
-            if (treadmill.targetSpeed.gt(treadmill.currentSpeed)) {
-                speedChange = new Decimal(0.1);
-            } else if (treadmill.targetSpeed.lt(treadmill.currentSpeed)) {
-                speedChange = new Decimal(-0.1);
-            }
+            if (!haveWeReachedTarget) {
+                let speedChange = new Decimal(0.1);
 
-            // TODO: temporary safety check Cap speed at 4mph
-            if (speedChange && treadmill.currentSpeed.lt(4)) {
-            treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
-                const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
+                // Speed change is positive when going up,
+                // But if the target is below our actual,
+                // We slow down by negating the speedChange
+                if (treadmill.targetSpeed.lt(treadmill.currentSpeed)) {
+                    speedChange = speedChange.neg();
+                }
 
-                console.log('targ: ', treadmill.targetSpeed.toNumber());
-                console.log('cur: ', treadmill.currentSpeed.toNumber());
-                console.log('duty: ', newDutyCycle);
+                // TODO: temporary safety check Cap speed at 4mph
+                if (speedChange && treadmill.currentSpeed.lt(4)) {
+                treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
+                    const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
 
-                speedWire.hardwarePwmWrite(speedWireFrequency, newDutyCycle);
+                    console.log('targ: ', treadmill.targetSpeed.toNumber());
+                    console.log('cur: ', treadmill.currentSpeed.toNumber());
+                    console.log('duty: ', newDutyCycle);
+
+                    speedWire.hardwarePwmWrite(speedWireFrequency, newDutyCycle);
+                }
             }
         }, dutyCycleUpdaterFrequencyMs);
     },
