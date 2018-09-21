@@ -132,20 +132,22 @@ const treadmill = {
         let previousTachTimestamp;
 
         // From testing:
-        // 1mph = 154 ticks
+        // 1mph = 154 ticks in a minute
+        // 1mph = 195.52ms per every rotation
         speedInfoWire.on('interrupt', (level) => {
             if (level === 1) {
                 if (treadmill.currentSpeed.eq(treadmill.targetSpeed) && !treadmill.targetSpeed.isZero()) {
                     if (!tachPerMinInterval) {
                         tachPerMinInterval = true; // temporarily set this so it doesn't get called again
                         setTimeout(() => {
-                            console.log("Measuring tach per minute...");
+                            console.log("Measuring tach stats...");
                             tickAccumulator = 0;
                             tachPerMinInterval = setInterval(() => {
                                 const averageTimePerRotationInMs = timingPerRotation.reduce((prev, cur) => prev + cur) / timingPerRotation.length;
                                 console.log('ticks per min:', tickAccumulator * 6);
                                 console.log('time per tick (ms):', averageTimePerRotationInMs);
                                 tickAccumulator = 0;
+                                timingPerRotation = [];
                             }, 10000);
                         }, 2500);
                     }
@@ -160,11 +162,13 @@ const treadmill = {
 
                     previousTachTimestamp = timeNow;
                 } else {
+                    // the target speed has been changed, so reset everything
                     if (tachPerMinInterval) {
                         clearInterval(tachPerMinInterval);
                     }
 
                     tickAccumulator = 0;
+                    timingPerRotation = [];
                 }
             }
         });
