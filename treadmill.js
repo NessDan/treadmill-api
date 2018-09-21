@@ -28,7 +28,6 @@ const treadmill = {
     targetIncline: new Decimal(0), // This should be loaded from a file on load
     currentIncline: new Decimal(0), // This should be loaded from a file on load
     achieveTargetSpeedLoop: () => {
-        const speedWireFrequency = 20; // Treadmill uses 20Hz freq from testing.
         // Going from 0mph to 6mph takes roughly 11s
         // https://photos.app.goo.gl/h2WShMgJdqL9JZsq5
         // Therefore, for every 1mph, it takes 1.833s
@@ -94,7 +93,7 @@ const treadmill = {
                     console.log('cur: ', treadmill.currentSpeed.toNumber());
                     console.log('duty: ', newDutyCycle);
 
-                    speedWire.hardwarePwmWrite(speedWireFrequency, newDutyCycle);
+                    speedWire.hardwarePwmWrite(treadmill.constants.speedWireFrequency, newDutyCycle);
                 }
             }
         }, dutyCycleUpdaterFrequencyMs);
@@ -172,7 +171,7 @@ const treadmill = {
     },
     speedWireOff: () => {
         console.log(`Setting the speed duty cycle to 0`);
-        speedWire.hardwarePwmWrite(speedWireFrequency, 0);
+        speedWire.hardwarePwmWrite(treadmill.constants.speedWireFrequency, 0);
     },
     inclineWireOn: () => {
         console.log(`Flipping the incline wire on`);
@@ -275,7 +274,7 @@ const treadmill = {
     getSpeed: () => {
     },
     constants: {
-
+        speedWireFrequency: 20, // Treadmill uses 20Hz freq from testing.
     }
 };
 
