@@ -123,6 +123,7 @@ const treadmill = {
         setInterval(() => {
             // When we've reached the target after it being set:
             if (treadmill.targetGrade.eq(treadmill.currentGrade) && (treadmill.isInclining || treadmill.isDeclining)) {
+                console.log("Incline position reached");
                 treadmill.inclineWireOff();
                 treadmill.declineWireOff();
                 treadmill.treadmill.saveToInclineFile(treadmill.currentGrade);
@@ -368,8 +369,8 @@ const treadmill = {
         speedWireFrequency: 20, // Treadmill uses 20Hz freq from testing.
         inclineTachTimeoutMs: 1500, // After 1.5s, we know incline is no longer running.
         maximumGrade: new Decimal(18), // Console board shows -3% -> 15% so 18 total.
-        safeInclineGradeValueEvery10ms: new Decimal(0.002543), // 18 / 70.77s = 0.002543 grades / 10ms
-        safeDeclineGradeValueEvery10ms: new Decimal(0.002569), // 18 / 70.04s = 0.002569 grades / 10ms
+        safeInclineGradeValueEvery10ms: new Decimal(0.0002543), // 18 / 70.77s = 0.002543 grades / 10ms
+        safeDeclineGradeValueEvery10ms: new Decimal(0.0002569), // 18 / 70.04s = 0.002569 grades / 10ms
     }
 };
 
