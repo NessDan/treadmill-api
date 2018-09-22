@@ -243,7 +243,7 @@ const treadmill = {
         };
         const restartCountdown = () => {
             clearInterval(countdownToInclineWall);
-            return countdownToInclineWall.setTimeout(weHitLimit, treadmill.constants.inclineTachTimeoutMs);
+            return setTimeout(weHitLimit, treadmill.constants.inclineTachTimeoutMs);
         };
 
         let countdownToInclineWall = restartCountdown;
