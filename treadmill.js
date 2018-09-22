@@ -147,7 +147,7 @@ const treadmill = {
         }, 10);
     },
     setIncline: (grade) => {
-        treadmill.targetIncline = grade;
+        treadmill.targetIncline = new Decimal(grade);
     },
     setSpeedWire: (targetDutyCycle) => {
         console.log(`Setting the speed duty cycle to ${targetDutyCycle}`);
@@ -225,7 +225,7 @@ const treadmill = {
             };
         } else if (treadmill.isDeclining) {
             inclineDeclineWireOff = treadmill.declineWireOff;
-            limitGrade = 0;
+            limitGrade = new Decimal(0);
             isIncliningOrDeclining = () => {
                 return treadmill.isDeclining;
             };
@@ -236,8 +236,8 @@ const treadmill = {
         const weHitLimit = () => {
             if (isIncliningOrDeclining()) {
                 inclineInfoWire.off('interrupt', restartCountdown);
-                treadmill.targetGrade = new Decimal(limitGrade);
-                treadmill.currentGrade = new Decimal(limitGrade);
+                treadmill.targetGrade = limitGrade;
+                treadmill.currentGrade = limitGrade;
                 inclineDeclineWireOff();
                 treadmill.saveToInclineFile(limitGrade);
             }
@@ -299,8 +299,11 @@ const treadmill = {
             const unsafeIncline = Number.parseFloat(lastKnownInclineFromFile); // In case someone sent us a string...
             const lastKnownIncline = new Decimal(unsafeIncline);
 
-            treadmill.targetGrade = lastKnownIncline;
-            treadmill.currentGrade = lastKnownIncline;
+            // TODO: The 4 needs to be in a constant, safety check
+            if (!lastKnownIncline.isNaN() && !lastKnownIncline.isNeg() && lastKnownIncline.lt(treadmill.constants.maximumGrade)) {
+                treadmill.targetGrade = lastKnownIncline;
+                treadmill.currentGrade = lastKnownIncline;
+            }
         }
     },
     saveToInclineFile: (grade) => {
@@ -363,9 +366,10 @@ const treadmill = {
         // TODO set GPIO outputs to 0
     },
     constants: {
+        maxSpeed: new Decimal(4),
         speedWireFrequency: 20, // Treadmill uses 20Hz freq from testing.
         inclineTachTimeoutMs: 1500, // After 1.5s, we know incline is no longer running.
-        maximumGrade: 18, // Console board shows -3% -> 15% so 18 total.
+        maximumGrade: new Decimal(18), // Console board shows -3% -> 15% so 18 total.
         safeInclineGradeValueEvery10ms: new Decimal(0.002543), // 18 / 70.77s = 0.002543 grades / 10ms
         safeDeclineGradeValueEvery10ms: new Decimal(0.002569), // 18 / 70.04s = 0.002569 grades / 10ms
     }
