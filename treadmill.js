@@ -92,8 +92,7 @@ const treadmill = {
                     speedChange = speedChange.neg();
                 }
 
-                // TODO: temporary safety check Cap speed at 4mph
-                if (speedChange && treadmill.currentSpeed.lt(4)) {
+                if (speedChange && treadmill.currentSpeed.lt(treadmill.constants.maxSpeed)) {
                 treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
                     const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
 
@@ -109,8 +108,8 @@ const treadmill = {
     setSpeed: (mph) => {
         const mphUnsafe = Number.parseFloat(mph); // In case someone sent us a string-string...
         const mphDecimal = new Decimal(mphUnsafe);
-        // TODO: The 4 needs to be in a constant, safety check
-        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(4)) {
+
+        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(treadmill.constants.maxSpeed)) {
             const mphRounded = mphDecimal.toDP(1);
             treadmill.targetSpeed = mphRounded;
         }
@@ -299,7 +298,6 @@ const treadmill = {
             const unsafeIncline = Number.parseFloat(lastKnownInclineFromFile); // In case someone sent us a string...
             const lastKnownIncline = new Decimal(unsafeIncline);
 
-            // TODO: The 4 needs to be in a constant, safety check
             if (!lastKnownIncline.isNaN() && !lastKnownIncline.isNeg() && lastKnownIncline.lt(treadmill.constants.maximumGrade)) {
                 treadmill.targetGrade = lastKnownIncline;
                 treadmill.currentGrade = lastKnownIncline;
