@@ -246,11 +246,11 @@ const treadmill = {
         };
         const restartCountdown = () => {
             clearInterval(countdownToInclineLimit);
-            return setTimeout(weHitLimit, treadmill.constants.inclineTachTimeoutMs);
+            countdownToInclineLimit = setTimeout(weHitLimit, treadmill.constants.inclineTachTimeoutMs);
         };
 
-        countdownToInclineLimit = restartCountdown();
-
+        // Really starting the countdown right here.
+        restartCountdown();
         inclineInfoWire.on('interrupt', restartCountdown);
     },
     calibrateIncline: () => {
