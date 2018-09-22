@@ -244,8 +244,10 @@ const treadmill = {
             }
         };
         const restartCountdown = () => {
-            console.log('Restarting countdown', countdownToInclineLimit);
-            clearInterval(countdownToInclineLimit);
+            if (countdownToInclineLimit) {
+                clearInterval(countdownToInclineLimit);
+            }
+
             return setTimeout(weHitLimit, treadmill.constants.inclineTachTimeoutMs);
         };
 
