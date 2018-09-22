@@ -305,7 +305,7 @@ const treadmill = {
         }
     },
     saveToInclineFile: (grade) => {
-        inclineFile.write();
+        fs.writeFile(inclineFilePath, grade);
     },
     measureTachTiming: () => {
         let tickAccumulator = 0;
