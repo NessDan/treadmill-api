@@ -235,6 +235,7 @@ const treadmill = {
 
         const weHitLimit = () => {
             if (isIncliningOrDeclining()) {
+                console.log('Incline motor hit limit.');
                 inclineInfoWire.off('interrupt', restartCountdown);
                 treadmill.targetGrade = limitGrade;
                 treadmill.currentGrade = limitGrade;
@@ -367,10 +368,10 @@ const treadmill = {
     constants: {
         maxSpeed: new Decimal(4),
         speedWireFrequency: 20, // Treadmill uses 20Hz freq from testing.
-        inclineTachTimeoutMs: 1500, // After 1.5s, we know incline is no longer running.
+        inclineTachTimeoutMs: 2000, // After 2s, we know incline is no longer running.
         maximumGrade: new Decimal(18), // Console board shows -3% -> 15% so 18 total.
-        safeInclineGradeValueEvery10ms: new Decimal(0.0002543), // 18 / 70.77s = 0.002543 grades / 10ms
-        safeDeclineGradeValueEvery10ms: new Decimal(0.0002569), // 18 / 70.04s = 0.002569 grades / 10ms
+        safeInclineGradeValueEvery10ms: new Decimal(0.002543), // 18 / 70.77s = 0.002543 grades / 10ms
+        safeDeclineGradeValueEvery10ms: new Decimal(0.002569), // 18 / 70.04s = 0.002569 grades / 10ms
     }
 };
 
