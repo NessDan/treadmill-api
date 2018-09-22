@@ -11,7 +11,7 @@ const {
     performance
 } = require('perf_hooks');
 const fs = require('fs');
-const inclineFilePath = 'inclinePosition.txt';
+const inclineFilePath = 'lastInclinePosition.txt';
 
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
 // TODO handle negative from setSpeed (if anything < 0 is inputted, bring it to 0)
@@ -289,7 +289,7 @@ const treadmill = {
         });
     },
     setLastKnownIncline: () => {
-        const lastKnownInclineFromFile = fs.readFileSync(inclineFilePath);
+        const lastKnownInclineFromFile = fs.readFileSync(inclineFilePath, {flag:'w+'});
 
         if (lastKnownInclineFromFile === '-1') {
             // We don't know what the last known incline was, we need to calibrate.
