@@ -182,31 +182,31 @@ const treadmill = {
         speedWire.hardwarePwmWrite(treadmill.constants.speedWireFrequency, 0);
     },
     inclineWireOn: () => {
-        console.log(`Flipping the incline wire on`);
+        console.log(`Flipping the incline wire on`, performance.now());
         inclineWire.digitalWrite(1);
     },
     inclineWireOff: () => {
-        console.log(`Flipping the incline wire off`);
+        console.log(`Flipping the incline wire off`, performance.now());
         inclineWire.digitalWrite(0);
     },
     inclineWireToggle: () => {
         const isInclining = inclineWire.digitalRead();
         const newIncliningState = isInclining ? 0 : 1;
-        console.log(`Toggling wire from ${isInclining} to ${newIncliningState}`);
+        console.log(`Toggling wire from ${isInclining} to ${newIncliningState}`, performance.now());
         inclineWire.digitalWrite(newIncliningState);
     },
     declineWireOn: () => {
-        console.log(`Flipping the decline wire on`);
+        console.log(`Flipping the decline wire on`, performance.now());
         declineWire.digitalWrite(1);
     },
     declineWireOff: () => {
-        console.log(`Flipping the decline wire off`);
+        console.log(`Flipping the decline wire off`, performance.now());
         declineWire.digitalWrite(0);
     },
     declineWireToggle: () => {
         const isDeclining = declineWire.digitalRead();
         const newDecliningState = isDeclining ? 0 : 1;
-        console.log(`Toggling wire from ${isDeclining} to ${newDecliningState}`);
+        console.log(`Toggling wire from ${isDeclining} to ${newDecliningState}`, performance.now());
         declineWire.digitalWrite(newDecliningState);
     },
     calibrateIncline: () => {
