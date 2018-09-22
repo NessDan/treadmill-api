@@ -10,23 +10,31 @@ const Decimal = require('decimal.js');
 const {
     performance
 } = require('perf_hooks');
+const fs = require('fs');
+const inclineFilePath = 'inclinePosition.txt';
 
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
 // TODO handle negative from setSpeed (if anything < 0 is inputted, bring it to 0)
 const treadmill = {
     initialize: () => {
+        // In case the program crashed and they're still turned on
+        // or if they don't initialize to off on `new Gpio`
         treadmill.inclineWireOff();
         treadmill.declineWireOff();
         treadmill.speedWireOff();
 
+        treadmill.setLastKnownIncline();
+
         treadmill.achieveTargetSpeedLoop();
         treadmill.achieveTargetInclineLoop();
-        treadmill.measureIncline();
+        // treadmill.measureIncline();
     },
     targetSpeed: new Decimal(0),
     currentSpeed: new Decimal(0),
-    targetIncline: new Decimal(0), // This should be loaded from a file on load
-    currentIncline: new Decimal(0), // This should be loaded from a file on load
+    targetGrade: new Decimal(0), // This should be loaded from a file on load
+    currentGrade: new Decimal(0), // This should be loaded from a file on load
+    isInclining: false,
+    isDeclining: false,
     achieveTargetSpeedLoop: () => {
         // Going from 0mph to 6mph takes roughly 11s
         // https://photos.app.goo.gl/h2WShMgJdqL9JZsq5
@@ -93,7 +101,7 @@ const treadmill = {
                     console.log('cur: ', treadmill.currentSpeed.toNumber());
                     console.log('duty: ', newDutyCycle);
 
-                    speedWire.hardwarePwmWrite(treadmill.constants.speedWireFrequency, newDutyCycle);
+                    treadmill.setSpeedWire(newDutyCycle);
                 }
             }
         }, dutyCycleUpdaterFrequencyMs);
@@ -108,74 +116,42 @@ const treadmill = {
         }
     },
     achieveTargetInclineLoop: () => {
-        const ticksPerGrade = new Decimal(4.111111);
-        const translateGradeToTicks = (grade) => new Decimal(grade).mul(ticksPerGrade);
-        let haveWeReachedTarget = false;
-        let isInclining = false;
-        let isDeclining = false;
-        const achieveTargetInclineInterval = setInterval(() => {
-            // TODO WHEN YOU COME BACK TOMORROW:
-            // target and current incline are going to be saved as GRADES
-            // because of this, our calculations below are odd (since we are working in TACH TICKS)
+        // const ticksPerGrade = new Decimal(4.111111);
+        // const translateGradeToTicks = (grade) => new Decimal(grade).mul(ticksPerGrade);
+        let inclineEvery10ms = treadmill.constants.safeInclineGradeValueEvery10ms;
+        let declineEvery10ms = treadmill.constants.safeDeclineGradeValueEvery10ms;
 
-            // IDEA: When target and current incline match, save to disk. Whenever they don't match, save a "bad"
-            // to the file and when we boot, if it's "bad", force a re-calibrate.
-            let targetWire;
-
-            if (treadmill.targetIncline.lt(treadmill.currentIncline)) {
-                isDeclining = true;
-                targetWire = declineWire;
-            } else if (treadmill.targetIncline.gt(treadmill.currentIncline)) {
-                isInclining = true;
-                targetWire = inclineWire;
-            } else {
-                haveWeReachedTarget = true;
-            }
-
-            if (!haveWeReachedTarget) {
-                let inclineChange = new Decimal(0.04111);
-
-                // Incline change is positive when going up,
-                // But if the target is below our actual,
-                // We slow down by negating the inclineChange
-                if (treadmill.targetIncline.lt(treadmill.currentIncline)) {
-                    inclineChange = inclineChange.neg();
+        setInterval(() => {
+            // When we've reached the target after it being set:
+            if (treadmill.targetGrade.eq(treadmill.currentGrade) && (treadmill.isInclining || treadmill.isDeclining)) {
+                treadmill.inclineWireOff();
+                treadmill.declineWireOff();
+                treadmill.treadmill.saveToInclineFile(treadmill.currentGrade);
+            } else if (treadmill.currentGrade.lt(treadmill.targetGrade)) {
+                if (!treadmill.isInclining) {
+                    treadmill.inclineWireOn();
                 }
 
-                const nextStepInIncline = treadmill.currentIncline.add(inclineChange);
-
-                if (isInclining && nextStepInIncline.gt(treadmill.targetIncline)) {
-                    treadmill.currentIncline = treadmill.targetIncline;
-                } else if (isDeclining && nextStepInIncline.lt(treadmill.targetIncline)) {
-                    treadmill.currentIncline = treadmill.targetIncline;
-                } else {
-                    treadmill.currentIncline = nextStepInIncline;
+                // currentGrade should never be greater than targetGrade or max grade going up.
+                treadmill.currentGrade = Decimal.min(treadmill.currentGrade.add(inclineEvery10ms), treadmill.targetGrade, treadmill.constants.maximumGrade);
+            } else if (treadmill.currentGrade.gt(treadmill.targetGrade)) {
+                // isDeclining could do digitalRead every time or be a saved value.
+                // https://www.npmjs.com/package/pigpio#performance
+                if (!treadmill.isDeclining) {
+                    treadmill.declineWireOn();
                 }
 
-                if (!targetWire.digitalRead()) {
-                    targetWire.digitalWrite(1);
-                }
-            } else {
-                // We hit our target! Turn the wires off.
-                if (inclineWire.digitalRead()) {
-                    treadmill.inclineWireOff();
-                }
-
-                if (declineWire.digitalRead()) {
-                    treadmill.declineWireOff();
-                }
+                // currentGrade should never be lower than targetGrade or 0 going down.
+                treadmill.currentGrade = Decimal.max(treadmill.currentGrade.sub(declineEvery10ms), treadmill.targetGrade, 0);
             }
         }, 10);
-
-        let safetyInterval = setInterval(() => {
-
-        }, 1300); // Every 1.3s check if we stopped inclining
-
     },
     setIncline: (grade) => {
         treadmill.targetIncline = grade;
     },
-    speedWireOn: (targetDutyCycle) => {
+    setSpeedWire: (targetDutyCycle) => {
+        console.log(`Setting the speed duty cycle to ${targetDutyCycle}`);
+        speedWire.hardwarePwmWrite(treadmill.constants.speedWireFrequency, targetDutyCycle);
     },
     speedWireOff: () => {
         console.log(`Setting the speed duty cycle to 0`);
@@ -183,31 +159,97 @@ const treadmill = {
     },
     inclineWireOn: () => {
         console.log(`Flipping the incline wire on`, performance.now());
+        treadmill.declineWireOff();
         inclineWire.digitalWrite(1);
+
+        // isInclining statically set to save from calling digitalRead too many times.
+        // https://www.npmjs.com/package/pigpio#performance
+        treadmill.isInclining = true;
+        // We can no longer guarantee what the incline is once this starts so we save "bad".
+        // It's up to our "reach target incline" function to re-save it once it confirms the incline.
+        treadmill.saveToInclineFile('-1');
+        // As we start inclining, this will make sure that when we hit a wall,
+        // the incline wire will turn off and we'll mark the current position.
+        treadmill.checkIfWeHitInclineLimit();
     },
     inclineWireOff: () => {
         console.log(`Flipping the incline wire off`, performance.now());
         inclineWire.digitalWrite(0);
+        treadmill.isInclining = false;
     },
     inclineWireToggle: () => {
-        const isInclining = inclineWire.digitalRead();
-        const newIncliningState = isInclining ? 0 : 1;
-        console.log(`Toggling wire from ${isInclining} to ${newIncliningState}`, performance.now());
-        inclineWire.digitalWrite(newIncliningState);
+        console.log(`Toggling the incline wire`);
+        if (treadmill.isInclining) {
+            treadmill.inclineWireOff();
+        } else {
+            treadmill.inclineWireOn();
+        }
     },
     declineWireOn: () => {
         console.log(`Flipping the decline wire on`, performance.now());
+        treadmill.inclineWireOff();
         declineWire.digitalWrite(1);
+        // isDeclining statically set to save from calling digitalRead too many times.
+        // https://www.npmjs.com/package/pigpio#performance
+        treadmill.isDeclining = true;
+        // We can no longer guarantee what the incline is once this starts so we save "bad".
+        // It's up to our "reach target incline" function to re-save it once it confirms the incline.
+        treadmill.saveToInclineFile('-1');
+        // As we start inclining, this will make sure that when we hit a wall,
+        // the incline wire will turn off and we'll mark the current position.
+        treadmill.checkIfWeHitInclineLimit();
     },
     declineWireOff: () => {
         console.log(`Flipping the decline wire off`, performance.now());
         declineWire.digitalWrite(0);
+        treadmill.isDeclining = false;
     },
     declineWireToggle: () => {
-        const isDeclining = declineWire.digitalRead();
-        const newDecliningState = isDeclining ? 0 : 1;
-        console.log(`Toggling wire from ${isDeclining} to ${newDecliningState}`, performance.now());
-        declineWire.digitalWrite(newDecliningState);
+        console.log(`Toggling the decline wire`);
+        if (treadmill.isDeclining) {
+            treadmill.declineWireOff();
+        } else {
+            treadmill.declineWireOn();
+        }
+    },
+    checkIfWeHitInclineLimit: () => {
+        let inclineDeclineWireOff;
+        let limitGrade;
+        let isIncliningOrDeclining;
+
+        if (treadmill.isInclining) {
+            inclineDeclineWireOff = treadmill.inclineWireOff;
+            limitGrade = treadmill.constants.maximumGrade;
+            isIncliningOrDeclining = () => {
+                return treadmill.isInclining;
+            };
+        } else if (treadmill.isDeclining) {
+            inclineDeclineWireOff = treadmill.declineWireOff;
+            limitGrade = 0;
+            isIncliningOrDeclining = () => {
+                return treadmill.isDeclining;
+            };
+        } else {
+            return; // Function was called when we weren't inclining
+        }
+
+        const weHitLimit = () => {
+            if (isIncliningOrDeclining()) {
+                inclineInfoWire.off('interrupt', restartCountdown);
+                treadmill.targetGrade = new Decimal(limitGrade);
+                treadmill.currentGrade = new Decimal(limitGrade);
+                inclineDeclineWireOff();
+                treadmill.saveToInclineFile(limitGrade);
+            }
+        };
+        const restartCountdown = () => {
+            clearInterval(countdownToInclineWall);
+            return countdownToInclineWall.setTimeout(weHitLimit, treadmill.constants.inclineTachTimeoutMs);
+        };
+
+        let countdownToInclineWall = restartCountdown;
+
+        inclineInfoWire.on('interrupt', restartCountdown);
     },
     calibrateIncline: () => {
 
@@ -225,8 +267,13 @@ const treadmill = {
         // This means we incline at 1.08s per tick, or 1080 ms per 1 tick.
         // For time, it takes 70.2 seconds to go from top to bottom.
         // This means we decline at 1.054s per tick, or 1054 ms per 1 tick.
-
         // That makes the average time ~69.35 seconds.
+        // Standing on it, bottom to top, 71.475s (Going to use this as absolute truth)
+        //  1035ms per tick / 3970 ms per grade / (0.00252 grade per 10ms)
+        // Standing on it, top to bottom, 69.037s
+        // Watching video: top to bot 4.04 1.14.08 (70.04s)
+        // Watching video: bot to top 0 1.10.77 (70.77s)
+
         inclineInfoWire.on('interrupt', (level) => {
             if (level === 1) {
                 clearTimeout(resetInterval);
@@ -241,6 +288,23 @@ const treadmill = {
                 console.log('a tick:, ', performance.now());
             }
         });
+    },
+    setLastKnownIncline: () => {
+        const lastKnownInclineFromFile = fs.readFileSync(inclineFilePath);
+
+        if (lastKnownInclineFromFile === '-1') {
+            // We don't know what the last known incline was, we need to calibrate.
+            treadmill.calibrateIncline();
+        } else {
+            const unsafeIncline = Number.parseFloat(lastKnownInclineFromFile); // In case someone sent us a string...
+            const lastKnownIncline = new Decimal(unsafeIncline);
+
+            treadmill.targetGrade = lastKnownIncline;
+            treadmill.currentGrade = lastKnownIncline;
+        }
+    },
+    saveToInclineFile: (grade) => {
+        inclineFile.write();
     },
     measureTachTiming: () => {
         let tickAccumulator = 0;
@@ -293,8 +357,17 @@ const treadmill = {
     },
     getSpeed: () => {
     },
+    cleanUp: () => {
+        // Should get called on exit / termination
+        inclineFile.closeSync();
+        // TODO set GPIO outputs to 0
+    },
     constants: {
         speedWireFrequency: 20, // Treadmill uses 20Hz freq from testing.
+        inclineTachTimeoutMs: 1500, // After 1.5s, we know incline is no longer running.
+        maximumGrade: 18, // Console board shows -3% -> 15% so 18 total.
+        safeInclineGradeValueEvery10ms: new Decimal(0.002543), // 18 / 70.77s = 0.002543 grades / 10ms
+        safeDeclineGradeValueEvery10ms: new Decimal(0.002569), // 18 / 70.04s = 0.002569 grades / 10ms
     }
 };
 
