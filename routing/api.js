@@ -37,6 +37,14 @@ const routing = {
         treadmill.calibrateIncline();
         res.send();
     },
+    decline: (_req, res) => {
+        treadmill.declineWireOn();
+        res.send();
+    },
+    incline: (_req, res) => {
+        treadmill.inclineWireOn();
+        res.send();
+    }
 };
 
 const loggerMiddleware = (req, _res, next) => {
