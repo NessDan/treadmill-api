@@ -110,17 +110,16 @@ const treadmill = {
     achieveTargetInclineLoop: () => {
         const ticksPerGrade = new Decimal(4.111111);
         const translateGradeToTicks = (grade) => new Decimal(grade).mul(ticksPerGrade);
+        let haveWeReachedTarget = false;
+        let isInclining = false;
+        let isDeclining = false;
+        const achieveTargetInclineInterval = setInterval(() => {
+            // TODO WHEN YOU COME BACK TOMORROW:
+            // target and current incline are going to be saved as GRADES
+            // because of this, our calculations below are odd (since we are working in TACH TICKS)
 
-        // TODO WHEN YOU COME BACK TOMORROW:
-        // target and current incline are going to be saved as GRADES
-        // because of this, our calculations below are odd (since we are working in TACH TICKS)
-
-        // IDEA: When target and current incline match, save to disk. Whenever they don't match, save a "bad"
-        // to the file and when we boot, if it's "bad", force a re-calibrate.
-        setInterval(() => {
-            let haveWeReachedTarget = false;
-            let isInclining = false;
-            let isDeclining = false;
+            // IDEA: When target and current incline match, save to disk. Whenever they don't match, save a "bad"
+            // to the file and when we boot, if it's "bad", force a re-calibrate.
             let targetWire;
 
             if (treadmill.targetIncline.lt(treadmill.currentIncline)) {
@@ -167,6 +166,10 @@ const treadmill = {
                 }
             }
         }, 10);
+
+        let safetyInterval = setInterval(() => {
+
+        }, 1300); // Every 1.3s check if we stopped inclining
 
     },
     setIncline: (grade) => {
