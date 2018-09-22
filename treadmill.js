@@ -216,6 +216,7 @@ const treadmill = {
         let inclineDeclineWireOff;
         let limitGrade;
         let isIncliningOrDeclining;
+        let countdownToInclineLimit;
 
         if (treadmill.isInclining) {
             inclineDeclineWireOff = treadmill.inclineWireOff;
@@ -244,14 +245,11 @@ const treadmill = {
             }
         };
         const restartCountdown = () => {
-            if (countdownToInclineLimit) {
-                clearInterval(countdownToInclineLimit);
-            }
-
+            clearInterval(countdownToInclineLimit);
             return setTimeout(weHitLimit, treadmill.constants.inclineTachTimeoutMs);
         };
 
-        let countdownToInclineLimit = restartCountdown();
+        countdownToInclineLimit = restartCountdown();
 
         inclineInfoWire.on('interrupt', restartCountdown);
     },
