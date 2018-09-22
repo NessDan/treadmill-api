@@ -30,7 +30,7 @@ const routing = {
         }
     },
     getIncline: (_req, res) => {
-        const treadmillIncline = treadmill.currentIncline.toFixed(1);
+        const treadmillIncline = treadmill.getIncline();
         res.send(treadmillIncline);
     },
     calibrateIncline: (_req, res) => {

@@ -146,7 +146,7 @@ const treadmill = {
         }, 10);
     },
     setIncline: (grade) => {
-        treadmill.targetIncline = new Decimal(grade);
+        treadmill.targetGrade = new Decimal(grade);
     },
     setSpeedWire: (targetDutyCycle) => {
         console.log(`Setting the speed duty cycle to ${targetDutyCycle}`);
