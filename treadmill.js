@@ -126,7 +126,7 @@ const treadmill = {
                 console.log("Incline position reached");
                 treadmill.inclineWireOff();
                 treadmill.declineWireOff();
-                treadmill.treadmill.saveToInclineFile(treadmill.currentGrade);
+                treadmill.saveToInclineFile(treadmill.currentGrade);
             } else if (treadmill.currentGrade.lt(treadmill.targetGrade)) {
                 if (!treadmill.isInclining) {
                     treadmill.inclineWireOn();
