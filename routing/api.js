@@ -38,11 +38,11 @@ const routing = {
         res.send();
     },
     decline: (_req, res) => {
-        treadmill.declineWireOn();
+        treadmill.declineWireToggle();
         res.send();
     },
     incline: (_req, res) => {
-        treadmill.inclineWireOn();
+        treadmill.inclineWireToggle();
         res.send();
     }
 };

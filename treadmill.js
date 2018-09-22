@@ -189,6 +189,12 @@ const treadmill = {
         console.log(`Flipping the incline wire off`);
         inclineWire.digitalWrite(0);
     },
+    inclineWireToggle: () => {
+        const isInclining = inclineWire.digitalRead();
+        const newIncliningState = isInclining ? 0 : 1;
+        console.log(`Toggling wire from ${isInclining} to ${newIncliningState}`);
+        inclineWire.digitalWrite(newIncliningState);
+    },
     declineWireOn: () => {
         console.log(`Flipping the decline wire on`);
         declineWire.digitalWrite(1);
@@ -196,6 +202,12 @@ const treadmill = {
     declineWireOff: () => {
         console.log(`Flipping the decline wire off`);
         declineWire.digitalWrite(0);
+    },
+    declineWireToggle: () => {
+        const isDeclining = declineWire.digitalRead();
+        const newDecliningState = isDeclining ? 0 : 1;
+        console.log(`Toggling wire from ${isDeclining} to ${newDecliningState}`);
+        declineWire.digitalWrite(newDecliningState);
     },
     calibrateIncline: () => {
 
