@@ -291,7 +291,7 @@ const treadmill = {
     setLastKnownIncline: () => {
         const lastKnownInclineFromFile = fs.readFileSync(inclineFilePath, {flag:'w+'});
 
-        if (lastKnownInclineFromFile === '-1') {
+        if (!lastKnownInclineFromFile || lastKnownInclineFromFile === '-1') {
             // We don't know what the last known incline was, we need to calibrate.
             treadmill.calibrateIncline();
         } else {
