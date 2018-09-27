@@ -5,6 +5,7 @@ const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN,
 const {
     performance
 } = require('perf_hooks');
+const constants = require('./treadmill.js').constants;
 
 const treadmill = {
     targetSpeed: new Decimal(0),
