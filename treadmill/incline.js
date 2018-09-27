@@ -66,7 +66,7 @@ const treadmill = {
         }
     },
     getIncline: () => {
-        return treadmill.targetGrade.toNumber();
+        return treadmill.targetGrade.toString();
     },
     inclineWireOn: () => {
         console.log(`Flipping the incline wire on. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);

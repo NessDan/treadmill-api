@@ -152,6 +152,7 @@ const treadmill = {
 
     },
     getSpeed: () => {
+        return treadmill.targetSpeed.toString();
     },
 };
 
