@@ -35,6 +35,7 @@ const treadmill = {
     currentGrade: new Decimal(0), // This should be loaded from a file on load
     isInclining: false,
     isDeclining: false,
+    isCalibrating: false,
     achieveTargetSpeedLoop: () => {
         // Going from 0mph to 6mph takes roughly 11s
         // https://photos.app.goo.gl/h2WShMgJdqL9JZsq5
@@ -80,28 +81,32 @@ const treadmill = {
         };
 
         setInterval(() => {
-            const haveWeReachedTarget = treadmill.targetSpeed.eq(treadmill.currentSpeed);
+            const weReachedTarget = treadmill.targetSpeed.eq(treadmill.currentSpeed);
 
-            if (!haveWeReachedTarget) {
-                let speedChange = new Decimal(0.1);
+            if (weReachedTarget) {
+                return;
+            }
 
-                // Speed change is positive when going up,
-                // But if the target is below our actual,
-                // We slow down by negating the speedChange
-                if (treadmill.targetSpeed.lt(treadmill.currentSpeed)) {
-                    speedChange = speedChange.neg();
-                }
+            // Let's update our speed below:
 
-                if (speedChange && treadmill.currentSpeed.lt(treadmill.constants.maxSpeed)) {
-                treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
-                    const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
+            let speedChange = new Decimal(0.1);
 
-                    console.log('targ: ', treadmill.targetSpeed.toNumber());
-                    console.log('cur: ', treadmill.currentSpeed.toNumber());
-                    console.log('duty: ', newDutyCycle);
+            // Speed change is positive when going up,
+            // But if the target is below our actual,
+            // We slow down by negating the speedChange
+            if (treadmill.targetSpeed.lt(treadmill.currentSpeed)) {
+                speedChange = speedChange.neg();
+            }
 
-                    treadmill.setSpeedWire(newDutyCycle);
-                }
+            if (speedChange && treadmill.currentSpeed.lt(treadmill.constants.maxSpeed)) {
+            treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
+                const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
+
+                console.log('targ: ', treadmill.targetSpeed.toNumber());
+                console.log('cur: ', treadmill.currentSpeed.toNumber());
+                console.log('duty: ', newDutyCycle);
+
+                treadmill.setSpeedWire(newDutyCycle);
             }
         }, dutyCycleUpdaterFrequencyMs);
     },
@@ -121,6 +126,10 @@ const treadmill = {
         let declineEvery10ms = treadmill.constants.safeDeclineGradeValueEvery10ms;
 
         setInterval(() => {
+            if (treadmill.isCalibrating) {
+                return;
+            }
+
             // When we've reached the target after it being set:
             if (treadmill.targetGrade.eq(treadmill.currentGrade) && (treadmill.isInclining || treadmill.isDeclining)) {
                 console.log("Incline position reached");
@@ -243,6 +252,7 @@ const treadmill = {
                 treadmill.currentGrade = limitGrade;
                 inclineDeclineWireOff();
                 treadmill.saveToInclineFile(limitGrade);
+                treadmill.isCalibrating = false;
             }
         };
         const restartCountdown = () => {
@@ -256,7 +266,9 @@ const treadmill = {
         inclineInfoWire.on('interrupt', restartCountdown);
     },
     calibrateIncline: () => {
-        // Make sure we aren't trying to hit an incline target
+        // Stop the incline achieve function with this boolean.
+        treadmill.isCalibrating = true;
+        // Extra safety additions.
         treadmill.targetGrade = new Decimal(0);
         treadmill.currentGrade = new Decimal(0);
         // Because declining the treadmill down non-stop will automatically trigger a calibration event.
