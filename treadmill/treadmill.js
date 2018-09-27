@@ -1,4 +1,3 @@
-const Decimal = require('decimal.js');
 const speedMethods = require('./speed.js');
 const inclineMethods = require('./incline.js');
 
@@ -30,17 +29,8 @@ const treadmill = {
         // Should get called on exit / termination
         treadmill.cleanGpio();
     },
-    constants: {
-        maxSpeed: new Decimal(4),
-        speedWireFrequency: 20, // Treadmill uses 20Hz freq from testing.
-        inclineTachTimeoutMs: 2000, // After 2s, we know incline is no longer running.
-        maximumGrade: new Decimal(19), // Console board shows -3% -> 15% so 19 steps total.
-        safeInclineGradeValueEveryMs: new Decimal(0.000268475343), // 19 / 70.77s = 0.268475343 grades / s
-        safeDeclineGradeValueEveryMs: new Decimal(0.000271273558), // 19 / 70.04s = 0.271273558 grades / s
-    }
 };
 
 treadmill.initialize();
 
-module.exports.treadmill = treadmill;
-module.exports.constants = treadmill.constants;
+module.exports = treadmill;

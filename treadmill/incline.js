@@ -8,6 +8,7 @@ const inclineInfoWire = new Gpio(6, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOW
 const {
     performance
 } = require('perf_hooks');
+const constants = require('./constants.js');
 
 const treadmill = {
     targetGrade: new Decimal(0), // This should be loaded from a file on load
@@ -19,8 +20,8 @@ const treadmill = {
         // const ticksPerGrade = new Decimal(4.111111);
         // const translateGradeToTicks = (grade) => new Decimal(grade).mul(ticksPerGrade);
         const inclineValueUpdateInterval = 10; // Every 10ms we check and re-target our incline.
-        let inclineAmountEveryInterval = treadmill.constants.safeInclineGradeValueEveryMs * inclineValueUpdateInterval;
-        let declineAmountEveryInterval = treadmill.constants.safeDeclineGradeValueEveryMs * inclineValueUpdateInterval;
+        let inclineAmountEveryInterval = constants.safeInclineGradeValueEveryMs * inclineValueUpdateInterval;
+        let declineAmountEveryInterval = constants.safeDeclineGradeValueEveryMs * inclineValueUpdateInterval;
 
         setInterval(() => {
             if (treadmill.isCalibrating) {
@@ -39,7 +40,7 @@ const treadmill = {
                 }
 
                 // currentGrade should never be greater than targetGrade or max grade going up.
-                treadmill.currentGrade = Decimal.min(treadmill.currentGrade.add(inclineAmountEveryInterval), treadmill.targetGrade, treadmill.constants.maximumGrade);
+                treadmill.currentGrade = Decimal.min(treadmill.currentGrade.add(inclineAmountEveryInterval), treadmill.targetGrade, constants.maximumGrade);
             } else if (treadmill.currentGrade.gt(treadmill.targetGrade)) {
                 // isDeclining could do digitalRead every time or be a saved value.
                 // https://www.npmjs.com/package/pigpio#performance
@@ -118,7 +119,7 @@ const treadmill = {
 
         if (treadmill.isInclining) {
             inclineDeclineWireOff = treadmill.inclineWireOff;
-            limitGrade = treadmill.constants.maximumGrade;
+            limitGrade = constants.maximumGrade;
             isIncliningOrDeclining = () => {
                 return treadmill.isInclining;
             };
@@ -146,7 +147,7 @@ const treadmill = {
         };
         const restartCountdown = () => {
             clearInterval(treadmill.countdownToInclineLimitInterval);
-            treadmill.countdownToInclineLimitInterval = setTimeout(weHitLimit, treadmill.constants.inclineTachTimeoutMs);
+            treadmill.countdownToInclineLimitInterval = setTimeout(weHitLimit, constants.inclineTachTimeoutMs);
         };
 
         // Clear any previous countdowns / interrupt listeners and start the new ones.
@@ -208,7 +209,7 @@ const treadmill = {
             const unsafeIncline = Number.parseFloat(lastKnownInclineFromFile); // In case someone sent us a string...
             const lastKnownIncline = new Decimal(unsafeIncline);
 
-            if (!lastKnownIncline.isNaN() && !lastKnownIncline.isNeg() && lastKnownIncline.lt(treadmill.constants.maximumGrade)) {
+            if (!lastKnownIncline.isNaN() && !lastKnownIncline.isNeg() && lastKnownIncline.lt(constants.maximumGrade)) {
                 treadmill.targetGrade = lastKnownIncline;
                 treadmill.currentGrade = lastKnownIncline;
             }
