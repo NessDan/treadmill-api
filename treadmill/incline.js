@@ -1,7 +1,7 @@
 const Gpio = require('pigpio').Gpio;
 const Decimal = require('decimal.js');
 const fs = require('fs');
-const inclineFilePath = '/lastInclinePosition.txt';
+const inclineFilePath = 'lastInclinePosition.txt';
 const inclineWire = new Gpio(19, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const declineWire = new Gpio(26, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
 const inclineInfoWire = new Gpio(6, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
