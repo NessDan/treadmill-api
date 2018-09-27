@@ -42,5 +42,5 @@ const treadmill = {
 
 treadmill.initialize();
 
-module.exports = treadmill;
+module.exports.treadmill = treadmill;
 module.exports.constants = treadmill.constants;

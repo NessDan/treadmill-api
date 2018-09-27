@@ -72,7 +72,7 @@ const treadmill = {
                 speedChange = speedChange.neg();
             }
 
-            if (speedChange && treadmill.currentSpeed.lt(treadmill.constants.maxSpeed)) {
+            if (speedChange && treadmill.currentSpeed.lt(constants.maxSpeed)) {
             treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
                 const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
 
@@ -88,18 +88,18 @@ const treadmill = {
         const mphUnsafe = Number.parseFloat(mph); // In case someone sent us a string-string...
         const mphDecimal = new Decimal(mphUnsafe);
 
-        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(treadmill.constants.maxSpeed)) {
+        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(constants.maxSpeed)) {
             const mphRounded = mphDecimal.toDP(1);
             treadmill.targetSpeed = mphRounded;
         }
     },
     setSpeedWire: (targetDutyCycle) => {
         console.log(`Setting the speed duty cycle to ${targetDutyCycle}`);
-        speedWire.hardwarePwmWrite(treadmill.constants.speedWireFrequency, targetDutyCycle);
+        speedWire.hardwarePwmWrite(constants.speedWireFrequency, targetDutyCycle);
     },
     speedWireOff: () => {
         console.log(`Setting the speed duty cycle to 0`);
-        speedWire.hardwarePwmWrite(treadmill.constants.speedWireFrequency, 0);
+        speedWire.hardwarePwmWrite(constants.speedWireFrequency, 0);
     },
     measureTachTiming: () => {
         let tickAccumulator = 0;
