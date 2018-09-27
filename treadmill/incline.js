@@ -16,6 +16,7 @@ const treadmill = {
     isInclining: false,
     isDeclining: false,
     isCalibrating: false,
+    achieveTargetInclineLoopIntervalId: 0,
     achieveTargetInclineLoop: () => {
         // const ticksPerGrade = new Decimal(4.111111);
         // const translateGradeToTicks = (grade) => new Decimal(grade).mul(ticksPerGrade);
@@ -23,7 +24,7 @@ const treadmill = {
         let inclineAmountEveryInterval = constants.safeInclineGradeValueEveryMs * inclineValueUpdateInterval;
         let declineAmountEveryInterval = constants.safeDeclineGradeValueEveryMs * inclineValueUpdateInterval;
 
-        setInterval(() => {
+        treadmill.achieveTargetInclineLoopIntervalId = setInterval(() => {
             if (treadmill.isCalibrating) {
                 return;
             }
@@ -51,7 +52,7 @@ const treadmill = {
                 // currentGrade should never be lower than targetGrade or 0 going down.
                 treadmill.currentGrade = Decimal.max(treadmill.currentGrade.sub(declineAmountEveryInterval), treadmill.targetGrade, 0);
             }
-        }, 10);
+        }, inclineValueUpdateInterval);
     },
     setIncline: (grade) => {
         // TODO add sanity check

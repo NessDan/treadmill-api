@@ -10,6 +10,7 @@ const constants = require('./constants.js');
 const treadmill = {
     targetSpeed: new Decimal(0),
     currentSpeed: new Decimal(0),
+    achieveTargetSpeedLoopIntervalId: 0,
     achieveTargetSpeedLoop: () => {
         // Going from 0mph to 6mph takes roughly 11s
         // https://photos.app.goo.gl/h2WShMgJdqL9JZsq5
@@ -54,7 +55,7 @@ const treadmill = {
             return dutyCycleForMph.toNumber(); // pigpio is expecting a number.
         };
 
-        setInterval(() => {
+        treadmill.achieveTargetSpeedLoopIntervalId = setInterval(() => {
             const weReachedTarget = treadmill.targetSpeed.eq(treadmill.currentSpeed);
 
             if (weReachedTarget) {

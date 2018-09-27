@@ -1,5 +1,12 @@
 const speedMethods = require('./speed.js');
 const inclineMethods = require('./incline.js');
+var domain = require('domain').create()
+domain.on('error', (err) => {
+    // The app has crashed for some reason.
+    // Cleanup GPIO
+    console.log(err);
+    treadmill.cleanUp();
+});
 
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
 // TODO handle negative from setSpeed (if anything < 0 is inputted, bring it to 0)
@@ -27,6 +34,12 @@ const treadmill = {
     },
     cleanUp: () => {
         // Should get called on exit / termination
+
+        // No longer update targeted speeds or inclines.
+        clearInterval(treadmill.achieveTargetInclineLoopIntervalId);
+        clearInterval(treadmill.achieveTargetSpeedLoopIntervalId);
+
+        // Turn off all our wires.
         treadmill.cleanGpio();
     },
 };
