@@ -201,8 +201,14 @@ const treadmill = {
         });
     },
     setLastKnownIncline: () => {
-        const lastKnownInclineFromFile = fs.readFileSync(inclineFilePath, { encoding: 'utf8', flag: 'w+' });
-        console.log(`Incline file loaded, contents: ${lastKnownInclineFromFile}`);
+        let lastKnownInclineFromFile;
+
+        try {
+            lastKnownInclineFromFile = fs.readFileSync(inclineFilePath, { encoding: 'utf8' });
+            console.log(`Incline file loaded, contents: ${lastKnownInclineFromFile}`);
+        } catch (e) {
+            console.log(`Incline file doesn't exist.`);
+        }
 
         if (!lastKnownInclineFromFile || lastKnownInclineFromFile === '-1') {
             // We don't know what the last known incline was, we need to calibrate.
