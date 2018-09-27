@@ -212,7 +212,7 @@ const treadmill = {
             treadmill.declineWireOn();
         }
     },
-    countdownToInclineLimitInterval,
+    countdownToInclineLimitInterval: 0,
     watchForInclineLimitReached: () => {
         let inclineDeclineWireOff;
         let limitGrade;
