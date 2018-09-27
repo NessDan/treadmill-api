@@ -54,10 +54,11 @@ const treadmill = {
         }, 10);
     },
     setIncline: (grade) => {
+        // TODO add sanity check
         treadmill.targetGrade = new Decimal(grade);
     },
     inclineWireOn: () => {
-        console.log(`Flipping the incline wire on`, performance.now());
+        console.log(`Flipping the incline wire on. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
         treadmill.declineWireOff();
         inclineWire.digitalWrite(1);
 
@@ -201,6 +202,7 @@ const treadmill = {
     },
     setLastKnownIncline: () => {
         const lastKnownInclineFromFile = fs.readFileSync(inclineFilePath, {flag:'w+'});
+        console.log(`File loaded, contents: ${lastKnownInclineFromFile}`);
 
         if (!lastKnownInclineFromFile || lastKnownInclineFromFile === '-1') {
             // We don't know what the last known incline was, we need to calibrate.
@@ -216,6 +218,7 @@ const treadmill = {
         }
     },
     saveToInclineFile: (grade) => {
+        console.log(`Saving to incline file: ${grade}`);
         fs.writeFileSync(inclineFilePath, grade);
     },
     getIncline: () => {
