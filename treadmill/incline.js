@@ -201,7 +201,7 @@ const treadmill = {
         });
     },
     setLastKnownIncline: () => {
-        const lastKnownInclineFromFile = fs.readFileSync(inclineFilePath, {flag:'w+'});
+        const lastKnownInclineFromFile = fs.readFileSync(inclineFilePath, { encoding: 'utf8', flag: 'w+' });
         console.log(`File loaded, contents: ${lastKnownInclineFromFile}`);
 
         if (!lastKnownInclineFromFile || lastKnownInclineFromFile === '-1') {
