@@ -146,7 +146,6 @@ const treadmill = {
         }
 
         const weHitLimit = () => {
-            // TODO: BUG: We have to kill this when we swap from incline -> decline -> incline, it goes all the way
             if (isIncliningOrDeclining()) {
                 console.log('Incline motor hit limit.');
                 inclineInfoWire.off('interrupt', restartCountdown);
@@ -158,7 +157,7 @@ const treadmill = {
             }
         };
         const restartCountdown = () => {
-            clearInterval(treadmill.countdownToInclineLimitInterval);
+            clearTimeout(treadmill.countdownToInclineLimitInterval);
             treadmill.countdownToInclineLimitInterval = setTimeout(weHitLimit, constants.inclineTachTimeoutMs);
         };
 

@@ -12,11 +12,6 @@ domain.on('error', onError);
 process.on('uncaughtException', onError);
 process.on('SIGINT', onError); // Handle CTRL + C, *nix only https://stackoverflow.com/a/20165643/231730
 
-
-
-
-// TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
-// TODO handle negative from setSpeed (if anything < 0 is inputted, bring it to 0)
 const treadmill = {
     ...speedMethods,
     ...inclineMethods,
