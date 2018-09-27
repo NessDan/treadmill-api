@@ -84,7 +84,7 @@ const treadmill = {
         treadmill.watchForInclineLimitReached();
     },
     inclineWireOff: () => {
-        console.log(`Flipping the incline wire off`, performance.now());
+        console.log(`Flipping the incline wire off. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
         inclineWire.digitalWrite(0);
         treadmill.isInclining = false;
     },
@@ -97,7 +97,7 @@ const treadmill = {
         }
     },
     declineWireOn: () => {
-        console.log(`Flipping the decline wire on`, performance.now());
+        console.log(`Flipping the decline wire on. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
         treadmill.inclineWireOff();
         declineWire.digitalWrite(1);
         // isDeclining statically set to save from calling digitalRead too many times.
@@ -111,7 +111,7 @@ const treadmill = {
         treadmill.watchForInclineLimitReached();
     },
     declineWireOff: () => {
-        console.log(`Flipping the decline wire off`, performance.now());
+        console.log(`Flipping the decline wire off. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
         declineWire.digitalWrite(0);
         treadmill.isDeclining = false;
     },
