@@ -1,6 +1,6 @@
 const Decimal = require('decimal.js');
-const speedMethods = require('speed.js');
-const inclineMethods = require('incline.js');
+const speedMethods = require('./speed.js');
+const inclineMethods = require('./incline.js');
 
 // TODO if program is CTRL + C'd or crashes, it needs to go to 0!! It doesn't as of right now
 // TODO handle negative from setSpeed (if anything < 0 is inputted, bring it to 0)
