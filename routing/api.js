@@ -1,5 +1,5 @@
 const express = require('express');
-const treadmill = require('../treadmill.js');
+const treadmill = require('../treadmill/treadmill.js');
 const apiRouter = express.Router();
 const Decimal = require('decimal.js');
 
