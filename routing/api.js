@@ -21,8 +21,6 @@ const routing = {
     },
     setIncline: (req, res) => {
         if (req.query && req.query.grade) {
-            const grade = new Decimal(req.query.grade);
-
             treadmill.setIncline(grade);
             res.send(grade);
         } else {

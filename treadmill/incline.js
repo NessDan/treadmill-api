@@ -54,9 +54,19 @@ const treadmill = {
             }
         }, inclineValueUpdateInterval);
     },
-    setIncline: (grade) => {
-        // TODO add sanity check
-        treadmill.targetGrade = new Decimal(grade);
+    setIncline: (grade, isTarget) => {
+        const unsafeIncline = Number.parseFloat(grade); // In case someone sent us a string...
+        const incline = new Decimal(unsafeIncline);
+
+        // Must be a number between maximum grade and 0
+        if (!incline.isNaN() && !incline.isNeg() && incline.lt(constants.maximumGrade)) {
+            const gradeRounded = incline.toDP(1);
+            treadmill.targetGrade = gradeRounded;
+            if (isTarget) treadmill.currentGrade = gradeRounded;
+        }
+    },
+    getIncline: () => {
+        return treadmill.targetGrade.toNumber();
     },
     inclineWireOn: () => {
         console.log(`Flipping the incline wire on. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
@@ -166,6 +176,27 @@ const treadmill = {
         // Because declining the treadmill down non-stop will automatically trigger a calibration event.
         treadmill.declineWireOn();
     },
+    setLastKnownIncline: () => {
+        let lastKnownInclineFromFile;
+
+        try {
+            lastKnownInclineFromFile = fs.readFileSync(inclineFilePath, { encoding: 'utf8' });
+            console.log(`Incline file loaded, contents: ${lastKnownInclineFromFile}`);
+        } catch (e) {
+            console.log(`Incline file doesn't exist.`);
+        }
+
+        if (!lastKnownInclineFromFile || lastKnownInclineFromFile === '-1') {
+            // We don't know what the last known incline was, we need to calibrate.
+            treadmill.calibrateIncline();
+        } else {
+            treadmill.setIncline(lastKnownInclineFromFile, true);
+        }
+    },
+    saveToInclineFile: (grade) => {
+        console.log(`Saving to incline file: ${grade}`);
+        fs.writeFileSync(inclineFilePath, grade);
+    },
     measureIncline: () => {
         let tickAccumulator = 0;
         let resetInterval;
@@ -200,36 +231,6 @@ const treadmill = {
                 console.log('a tick:, ', performance.now());
             }
         });
-    },
-    setLastKnownIncline: () => {
-        let lastKnownInclineFromFile;
-
-        try {
-            lastKnownInclineFromFile = fs.readFileSync(inclineFilePath, { encoding: 'utf8' });
-            console.log(`Incline file loaded, contents: ${lastKnownInclineFromFile}`);
-        } catch (e) {
-            console.log(`Incline file doesn't exist.`);
-        }
-
-        if (!lastKnownInclineFromFile || lastKnownInclineFromFile === '-1') {
-            // We don't know what the last known incline was, we need to calibrate.
-            treadmill.calibrateIncline();
-        } else {
-            const unsafeIncline = Number.parseFloat(lastKnownInclineFromFile); // In case someone sent us a string...
-            const lastKnownIncline = new Decimal(unsafeIncline);
-
-            if (!lastKnownIncline.isNaN() && !lastKnownIncline.isNeg() && lastKnownIncline.lt(constants.maximumGrade)) {
-                treadmill.targetGrade = lastKnownIncline;
-                treadmill.currentGrade = lastKnownIncline;
-            }
-        }
-    },
-    saveToInclineFile: (grade) => {
-        console.log(`Saving to incline file: ${grade}`);
-        fs.writeFileSync(inclineFilePath, grade);
-    },
-    getIncline: () => {
-        return treadmill.targetGrade.toNumber();
     },
 };
 
