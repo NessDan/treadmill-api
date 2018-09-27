@@ -256,7 +256,11 @@ const treadmill = {
         inclineInfoWire.on('interrupt', restartCountdown);
     },
     calibrateIncline: () => {
-
+        // Make sure we aren't trying to hit an incline target
+        treadmill.targetGrade = 0;
+        treadmill.currentGrade = 0;
+        // Because declining the treadmill down non-stop will automatically trigger a calibration event.
+        treadmill.declineWireOn();
     },
     measureIncline: () => {
         let tickAccumulator = 0;
