@@ -122,8 +122,9 @@ const treadmill = {
     achieveTargetInclineLoop: () => {
         // const ticksPerGrade = new Decimal(4.111111);
         // const translateGradeToTicks = (grade) => new Decimal(grade).mul(ticksPerGrade);
-        let inclineEvery10ms = treadmill.constants.safeInclineGradeValueEvery10ms;
-        let declineEvery10ms = treadmill.constants.safeDeclineGradeValueEvery10ms;
+        const inclineValueUpdateInterval = 10; // Every 10ms we check and re-target our incline.
+        let inclineAmountEveryInterval = treadmill.constants.safeInclineGradeValueEveryMs * inclineValueUpdateInterval;
+        let declineAmountEveryInterval = treadmill.constants.safeDeclineGradeValueEveryMs * inclineValueUpdateInterval;
 
         setInterval(() => {
             if (treadmill.isCalibrating) {
@@ -142,7 +143,7 @@ const treadmill = {
                 }
 
                 // currentGrade should never be greater than targetGrade or max grade going up.
-                treadmill.currentGrade = Decimal.min(treadmill.currentGrade.add(inclineEvery10ms), treadmill.targetGrade, treadmill.constants.maximumGrade);
+                treadmill.currentGrade = Decimal.min(treadmill.currentGrade.add(inclineAmountEveryInterval), treadmill.targetGrade, treadmill.constants.maximumGrade);
             } else if (treadmill.currentGrade.gt(treadmill.targetGrade)) {
                 // isDeclining could do digitalRead every time or be a saved value.
                 // https://www.npmjs.com/package/pigpio#performance
@@ -151,7 +152,7 @@ const treadmill = {
                 }
 
                 // currentGrade should never be lower than targetGrade or 0 going down.
-                treadmill.currentGrade = Decimal.max(treadmill.currentGrade.sub(declineEvery10ms), treadmill.targetGrade, 0);
+                treadmill.currentGrade = Decimal.max(treadmill.currentGrade.sub(declineAmountEveryInterval), treadmill.targetGrade, 0);
             }
         }, 10);
     },
@@ -280,9 +281,9 @@ const treadmill = {
 
         // From testing:
         // From bottom to top: 74 ticks of level === 1
-        // Since the treadmill goes from Grade 15% -> -3% (18 total):
-        // Each grade is 4.11111111 (74/18)
-        // Baseline would be 12.3333333 but we can't do percentages? Gotta figure out how to do this.
+        // Since the treadmill goes from Grade 15% -> -3% (19 total):
+        // Each grade is 3.89473684 (74/19)
+        // Baseline would be 11.6842105 but we can't do percentages? Gotta figure out how to do this.
         // For time, it takes ~68.5 seconds to go from bottom to top.
         // This means we incline at 1.08s per tick, or 1080 ms per 1 tick.
         // For time, it takes 70.2 seconds to go from top to bottom.
@@ -388,9 +389,9 @@ const treadmill = {
         maxSpeed: new Decimal(4),
         speedWireFrequency: 20, // Treadmill uses 20Hz freq from testing.
         inclineTachTimeoutMs: 2000, // After 2s, we know incline is no longer running.
-        maximumGrade: new Decimal(18), // Console board shows -3% -> 15% so 18 total.
-        safeInclineGradeValueEvery10ms: new Decimal(0.002543), // 18 / 70.77s = 0.002543 grades / 10ms
-        safeDeclineGradeValueEvery10ms: new Decimal(0.002569), // 18 / 70.04s = 0.002569 grades / 10ms
+        maximumGrade: new Decimal(19), // Console board shows -3% -> 15% so 19 steps total.
+        safeInclineGradeValueEveryMs: new Decimal(0.000268475343), // 19 / 70.77s = 0.268475343 grades / s
+        safeDeclineGradeValueEveryMs: new Decimal(0.000271273558), // 19 / 70.04s = 0.271273558 grades / s
     }
 };
 
