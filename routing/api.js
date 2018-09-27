@@ -12,7 +12,7 @@ const routing = {
             treadmill.setSpeed(mph);
             res.send(mph);
         } else {
-            res.send(mph);
+            res.send();
         }
     },
     getSpeed: (_req, res) => {
@@ -26,7 +26,7 @@ const routing = {
             treadmill.setIncline(grade);
             res.send(grade);
         } else {
-            res.send(grade);
+            res.send();
         }
     },
     getIncline: (_req, res) => {
