@@ -257,8 +257,8 @@ const treadmill = {
     },
     calibrateIncline: () => {
         // Make sure we aren't trying to hit an incline target
-        treadmill.targetGrade = 0;
-        treadmill.currentGrade = 0;
+        treadmill.targetGrade = new Decimal(0);
+        treadmill.currentGrade = new Decimal(0);
         // Because declining the treadmill down non-stop will automatically trigger a calibration event.
         treadmill.declineWireOn();
     },
