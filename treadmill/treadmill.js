@@ -2,6 +2,7 @@ const speedMethods = require('./speed.js');
 const inclineMethods = require('./incline.js');
 const onError = (err) => {
     // The app has crashed for some reason. Clean up everything and exit.
+    console.log("Error!");
     console.log(err);
     treadmill.cleanUp();
     process.exit(1);
@@ -9,6 +10,8 @@ const onError = (err) => {
 var domain = require('domain').create();
 domain.on('error', onError);
 process.on('uncaughtException', onError);
+process.on('SIGINT', onError); // Handle CTRL + C, *nix only https://stackoverflow.com/a/20165643/231730
+
 
 
 
