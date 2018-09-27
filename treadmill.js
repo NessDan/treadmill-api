@@ -170,7 +170,7 @@ const treadmill = {
         treadmill.saveToInclineFile('-1');
         // As we start inclining, this will make sure that when we hit a wall,
         // the incline wire will turn off and we'll mark the current position.
-        treadmill.checkIfWeHitInclineLimit();
+        treadmill.watchForInclineLimitReached();
     },
     inclineWireOff: () => {
         console.log(`Flipping the incline wire off`, performance.now());
@@ -197,7 +197,7 @@ const treadmill = {
         treadmill.saveToInclineFile('-1');
         // As we start inclining, this will make sure that when we hit a wall,
         // the incline wire will turn off and we'll mark the current position.
-        treadmill.checkIfWeHitInclineLimit();
+        treadmill.watchForInclineLimitReached();
     },
     declineWireOff: () => {
         console.log(`Flipping the decline wire off`, performance.now());
@@ -212,11 +212,11 @@ const treadmill = {
             treadmill.declineWireOn();
         }
     },
-    checkIfWeHitInclineLimit: () => {
+    countdownToInclineLimitInterval,
+    watchForInclineLimitReached: () => {
         let inclineDeclineWireOff;
         let limitGrade;
         let isIncliningOrDeclining;
-        let countdownToInclineLimit;
 
         if (treadmill.isInclining) {
             inclineDeclineWireOff = treadmill.inclineWireOff;
@@ -246,12 +246,13 @@ const treadmill = {
             }
         };
         const restartCountdown = () => {
-            clearInterval(countdownToInclineLimit);
-            countdownToInclineLimit = setTimeout(weHitLimit, treadmill.constants.inclineTachTimeoutMs);
+            clearInterval(treadmill.countdownToInclineLimitInterval);
+            treadmill.countdownToInclineLimitInterval = setTimeout(weHitLimit, treadmill.constants.inclineTachTimeoutMs);
         };
 
-        // Really starting the countdown right here.
+        // Clear any previous countdowns / interrupt listeners and start the new ones.
         restartCountdown();
+        inclineInfoWire.off('interrupt', restartCountdown);
         inclineInfoWire.on('interrupt', restartCountdown);
     },
     calibrateIncline: () => {
