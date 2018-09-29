@@ -17,6 +17,7 @@ process.on('SIGTSTP', onError);
 process.on('SIGTERM', onError);
 process.on('SIGCHLD', onError);
 process.on('SIGCONT', onError); // Handle when SSH connection closes that was running the app
+process.on('SIGSEGV', onError);
 
 const treadmill = {
     ...speedMethods,
