@@ -6,7 +6,7 @@ const {
     performance
 } = require('perf_hooks');
 const constants = require('./constants.js');
-const logger = require('../logger');
+const logger = require('../index').logger;
 
 const treadmill = {
     targetSpeed: new Decimal(0),
