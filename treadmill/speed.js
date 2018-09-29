@@ -92,8 +92,9 @@ const treadmill = {
     },
     setSpeedWire: (targetDutyCycle) => {
         logger.info(`Setting the speed duty cycle to ${targetDutyCycle}`);
-        logger.verbose('Target MPH: ', treadmill.targetSpeed.toNumber());
-        logger.verbose('Current MPH: ', treadmill.currentSpeed.toNumber());
+        logger.verbose('Target: ', treadmill.targetSpeed.toNumber());
+        logger.verbose('Current: ', treadmill.currentSpeed.toNumber());
+        logger.verbose('Duty: ', newDutyCycle);
         speedWire.hardwarePwmWrite(constants.speedWireFrequency, targetDutyCycle);
     },
     speedWireOff: () => {
