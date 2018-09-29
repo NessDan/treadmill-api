@@ -10,7 +10,7 @@ const transport = new (winston.transports.DailyRotateFile)({
   maxFiles: '14d'
 });
 
-const logger = winston.createLogger({
+const logger = new (winston.Logger)({
   transports: [
     transport
   ]
