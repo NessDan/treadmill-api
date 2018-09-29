@@ -6,7 +6,6 @@ const {
     performance
 } = require('perf_hooks');
 const constants = require('./constants.js');
-const logger = require('../index').logger;
 
 const treadmill = {
     targetSpeed: new Decimal(0),
@@ -77,6 +76,11 @@ const treadmill = {
             if (speedChange && treadmill.currentSpeed.lt(constants.maxSpeed)) {
             treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
                 const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
+
+                console.log('targ: ', treadmill.targetSpeed.toNumber());
+                console.log('cur: ', treadmill.currentSpeed.toNumber());
+                console.log('duty: ', newDutyCycle);
+
                 treadmill.setSpeedWire(newDutyCycle);
             }
         }, dutyCycleUpdaterFrequencyMs);
@@ -91,14 +95,11 @@ const treadmill = {
         }
     },
     setSpeedWire: (targetDutyCycle) => {
-        logger.info(`Setting the speed duty cycle to ${targetDutyCycle}`);
-        logger.verbose('Target: ', treadmill.targetSpeed.toNumber());
-        logger.verbose('Current: ', treadmill.currentSpeed.toNumber());
-        logger.verbose('Duty: ', newDutyCycle);
+        console.log(`Setting the speed duty cycle to ${targetDutyCycle}`);
         speedWire.hardwarePwmWrite(constants.speedWireFrequency, targetDutyCycle);
     },
     speedWireOff: () => {
-        logger.info(`Setting the speed duty cycle to 0`);
+        console.log(`Setting the speed duty cycle to 0`);
         speedWire.hardwarePwmWrite(constants.speedWireFrequency, 0);
     },
     measureTachTiming: () => {
@@ -116,12 +117,12 @@ const treadmill = {
                     if (!tachPerMinInterval) {
                         tachPerMinInterval = true; // temporarily set this so it doesn't get called again
                         setTimeout(() => {
-                            logger.info("Measuring tach stats...");
+                            console.log("Measuring tach stats...");
                             tickAccumulator = 0;
                             tachPerMinInterval = setInterval(() => {
                                 const averageTimePerRotationInMs = timingPerRotation.reduce((prev, cur) => prev + cur) / timingPerRotation.length;
-                                logger.info('ticks per min:', tickAccumulator * 6);
-                                logger.info('time per tick (ms):', averageTimePerRotationInMs);
+                                console.log('ticks per min:', tickAccumulator * 6);
+                                console.log('time per tick (ms):', averageTimePerRotationInMs);
                                 tickAccumulator = 0;
                                 timingPerRotation = [];
                             }, 10000);

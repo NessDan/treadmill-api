@@ -9,7 +9,6 @@ const {
     performance
 } = require('perf_hooks');
 const constants = require('./constants.js');
-const logger = require('../index').logger;
 
 const treadmill = {
     targetGrade: new Decimal(0), // This should be loaded from a file on load
@@ -32,7 +31,7 @@ const treadmill = {
 
             // When we've reached the target after it being set:
             if (treadmill.targetGrade.eq(treadmill.currentGrade) && (treadmill.isInclining || treadmill.isDeclining)) {
-                logger.info("Incline position reached");
+                console.log("Incline position reached");
                 treadmill.inclineWireOff();
                 treadmill.declineWireOff();
                 treadmill.saveToInclineFile(treadmill.currentGrade);
@@ -70,7 +69,7 @@ const treadmill = {
         return treadmill.targetGrade.toString();
     },
     inclineWireOn: () => {
-        logger.info(`Flipping the incline wire on. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
+        console.log(`Flipping the incline wire on. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
         treadmill.declineWireOff();
         inclineWire.digitalWrite(1);
 
@@ -85,12 +84,12 @@ const treadmill = {
         treadmill.watchForInclineLimitReached();
     },
     inclineWireOff: () => {
-        logger.info(`Flipping the incline wire off. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
+        console.log(`Flipping the incline wire off. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
         inclineWire.digitalWrite(0);
         treadmill.isInclining = false;
     },
     inclineWireToggle: () => {
-        logger.info(`Toggling the incline wire`);
+        console.log(`Toggling the incline wire`);
         if (treadmill.isInclining) {
             treadmill.inclineWireOff();
         } else {
@@ -98,7 +97,7 @@ const treadmill = {
         }
     },
     declineWireOn: () => {
-        logger.info(`Flipping the decline wire on. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
+        console.log(`Flipping the decline wire on. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
         treadmill.inclineWireOff();
         declineWire.digitalWrite(1);
         // isDeclining statically set to save from calling digitalRead too many times.
@@ -112,12 +111,12 @@ const treadmill = {
         treadmill.watchForInclineLimitReached();
     },
     declineWireOff: () => {
-        logger.info(`Flipping the decline wire off. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
+        console.log(`Flipping the decline wire off. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);
         declineWire.digitalWrite(0);
         treadmill.isDeclining = false;
     },
     declineWireToggle: () => {
-        logger.info(`Toggling the decline wire`);
+        console.log(`Toggling the decline wire`);
         if (treadmill.isDeclining) {
             treadmill.declineWireOff();
         } else {
@@ -148,7 +147,7 @@ const treadmill = {
 
         const weHitLimit = () => {
             if (isIncliningOrDeclining()) {
-                logger.warn('Incline motor hit limit.');
+                console.log('Incline motor hit limit.');
                 inclineInfoWire.off('interrupt', restartCountdown);
                 treadmill.targetGrade = limitGrade;
                 treadmill.currentGrade = limitGrade;
@@ -181,9 +180,9 @@ const treadmill = {
 
         try {
             lastKnownInclineFromFile = fs.readFileSync(inclineFilePath, { encoding: 'utf8' });
-            logger.info(`Incline file loaded, contents: ${lastKnownInclineFromFile}`);
+            console.log(`Incline file loaded, contents: ${lastKnownInclineFromFile}`);
         } catch (e) {
-            logger.warn(`Incline file doesn't exist.`);
+            console.log(`Incline file doesn't exist.`);
         }
 
         if (!lastKnownInclineFromFile || lastKnownInclineFromFile === '-1') {
@@ -194,7 +193,7 @@ const treadmill = {
         }
     },
     saveToInclineFile: (grade) => {
-        logger.info(`Saving to incline file: ${grade}`);
+        console.log(`Saving to incline file: ${grade}`);
         fs.writeFileSync(inclineFilePath, grade);
     },
     measureIncline: () => {
@@ -221,14 +220,14 @@ const treadmill = {
             if (level === 1) {
                 clearTimeout(resetInterval);
                 resetInterval = setTimeout(() => {
-                    logger.info('counted: ', tickAccumulator);
+                    console.log('counted: ', tickAccumulator);
                     tickAccumulator = 0;
                     treadmill.inclineWireOff();
                     treadmill.declineWireOff();
                 }, 3000);
 
                 tickAccumulator += 1;
-                logger.info('a tick:, ', performance.now());
+                console.log('a tick:, ', performance.now());
             }
         });
     },

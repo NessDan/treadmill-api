@@ -1,7 +1,7 @@
 const express = require('express');
 const treadmill = require('../treadmill/treadmill.js');
 const apiRouter = express.Router();
-const logger = require('../index').logger;
+const Decimal = require('decimal.js');
 
 // All of these functions can be hit by visiting /api/functionName
 const routing = {
@@ -55,7 +55,7 @@ const loggerMiddleware = (req, _res, next) => {
         query: req.query,
     };
 
-    logger.info(logMessage);
+    console.log(logMessage);
     next();
 }
 
