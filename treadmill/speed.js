@@ -87,14 +87,13 @@ const treadmill = {
 
         if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(constants.maxSpeed)) {
             const mphRounded = mphDecimal.toDP(1);
-            logger.info(`Setting the speed duty cycle to ${mph}`);
             treadmill.targetSpeed = mphRounded;
         }
     },
     setSpeedWire: (targetDutyCycle) => {
+        logger.info(`Setting the speed duty cycle to ${targetDutyCycle}`);
         logger.verbose('Target MPH: ', treadmill.targetSpeed.toNumber());
         logger.verbose('Current MPH: ', treadmill.currentSpeed.toNumber());
-        logger.verbose('Duty: ', targetDutyCycle);
         speedWire.hardwarePwmWrite(constants.speedWireFrequency, targetDutyCycle);
     },
     speedWireOff: () => {
