@@ -1,9 +1,10 @@
 const speedMethods = require('./speed.js');
 const inclineMethods = require('./incline.js');
+const logger = require('../index').logger;
 const onError = (err) => {
     // The app has crashed for some reason. Clean up everything and exit.
-    console.log("Error!");
-    console.log(err);
+    logger.error("Error!");
+    logger.error(err);
     treadmill.cleanUp();
     process.exit(1);
 };
