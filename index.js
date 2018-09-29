@@ -1,4 +1,4 @@
-const logger = require('./logger');
+const logger = require('logger.js');
 const express = require('express');
 const apiRouting = require('./routing/api.js');
 const app = express();
