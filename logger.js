@@ -1,7 +1,3 @@
-const logging = require('logger.js');
-const express = require('express');
-const apiRouting = require('./routing/api.js');
-const app = express();
 const winston = require('winston');
 require('winston-daily-rotate-file');
 
@@ -20,10 +16,4 @@ const logger = new (winston.Logger)({
   ]
 });
 
-logger.info('TEST');
-
-app.use(`/api`, apiRouting);
-app.listen(3000, () => logger.info(`Example app listening on port 3000!`));
-
-
-module.exports.logger = logger;
+module.exports = logger;
