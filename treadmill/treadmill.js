@@ -9,8 +9,14 @@ const onError = (err) => {
 };
 var domain = require('domain').create();
 domain.on('error', onError);
+process.on('unhandledRejection', onError);
 process.on('uncaughtException', onError);
 process.on('SIGINT', onError); // Handle CTRL + C, *nix only https://stackoverflow.com/a/20165643/231730
+process.on('SIGHUP', onError);
+process.on('SIGTSTP', onError);
+process.on('SIGTERM', onError);
+process.on('SIGCHLD', onError);
+process.on('SIGCONT', onError); // Handle when SSH connection closes that was running the app
 
 const treadmill = {
     ...speedMethods,
