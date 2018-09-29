@@ -9,7 +9,7 @@ const {
     performance
 } = require('perf_hooks');
 const constants = require('./constants.js');
-const logger = require('../index').logger;
+const logger = require('../logger');
 
 const treadmill = {
     targetGrade: new Decimal(0), // This should be loaded from a file on load

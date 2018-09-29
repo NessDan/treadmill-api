@@ -1,6 +1,6 @@
 const speedMethods = require('./speed.js');
 const inclineMethods = require('./incline.js');
-const logger = require('../index').logger;
+const logger = require('../logger');
 const onError = (err) => {
     // The app has crashed for some reason. Clean up everything and exit.
     logger.error("Error!");
