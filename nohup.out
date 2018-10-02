@@ -1,0 +1,36 @@
+
+> treadmill-api@1.0.0 start /home/pi/treadmill-api
+> sudo node index.js 2>&1 | tee -i -a output.txt
+
+Flipping the incline wire off. Current: 0 Target: 0
+Flipping the decline wire off. Current: 0 Target: 0
+Setting the speed duty cycle to 0
+Incline file loaded, contents: 3
+Error!
+TypeError: app.static is not a function
+    at Object.<anonymous> (/home/pi/treadmill-api/index.js:5:11)
+    at Module._compile (internal/modules/cjs/loader.js:689:30)
+    at Object.Module._extensions..js (internal/modules/cjs/loader.js:700:10)
+    at Module.load (internal/modules/cjs/loader.js:599:32)
+    at tryModuleLoad (internal/modules/cjs/loader.js:538:12)
+    at Function.Module._load (internal/modules/cjs/loader.js:530:3)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:742:12)
+    at startup (internal/bootstrap/node.js:266:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:596:3)
+Flipping the incline wire off. Current: 3 Target: 3
+Flipping the decline wire off. Current: 3 Target: 3
+Setting the speed duty cycle to 0
+
+> treadmill-api@1.0.0 start /home/pi/treadmill-api
+> sudo node index.js 2>&1 | tee -i -a output.txt
+
+Flipping the incline wire off. Current: 0 Target: 0
+Flipping the decline wire off. Current: 0 Target: 0
+Setting the speed duty cycle to 0
+Incline file loaded, contents: 3
+Treadmill API now listening.
+Error!
+SIGTERM
+Flipping the incline wire off. Current: 3 Target: 3
+Flipping the decline wire off. Current: 3 Target: 3
+Setting the speed duty cycle to 0
