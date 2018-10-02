@@ -45,6 +45,9 @@ const routing = {
     //     treadmill.inclineWireToggle();
     //     res.send();
     // }
+    routeAssistantWebhook: (req, res) => {
+
+    },
 };
 
 const loggerMiddleware = (req, _res, next) => {
