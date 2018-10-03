@@ -1,7 +1,6 @@
 const express = require('express');
 const treadmill = require('../treadmill/treadmill.js');
 const apiRouter = express.Router();
-const Decimal = require('decimal.js');
 
 // All of these functions can be hit by visiting /api/functionName
 const routing = {
@@ -37,14 +36,6 @@ const routing = {
         treadmill.calibrateIncline();
         res.send();
     },
-    // decline: (_req, res) => {
-    //     treadmill.declineWireToggle();
-    //     res.send();
-    // },
-    // incline: (_req, res) => {
-    //     treadmill.inclineWireToggle();
-    //     res.send();
-    // }
 };
 
 const loggerMiddleware = (req, _res, next) => {
@@ -53,6 +44,7 @@ const loggerMiddleware = (req, _res, next) => {
         endpoint: req.path,
         params: req.params,
         query: req.query,
+        body: req.body,
     };
 
     console.log(logMessage);
