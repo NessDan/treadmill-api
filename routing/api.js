@@ -38,22 +38,6 @@ const routing = {
     },
 };
 
-const loggerMiddleware = (req, _res, next) => {
-    const logMessage = {
-        date: Date.now(),
-        endpoint: req.path,
-        params: req.params,
-        query: req.query,
-        body: req.body,
-    };
-
-    console.log(logMessage);
-    next();
-}
-
-// Console log details for each request.
-apiRouter.use(loggerMiddleware);
-
 // Go through each property on our routing object and link it
 // to an API endpoint URL.
 Object.keys(routing).forEach(endpointName => {
