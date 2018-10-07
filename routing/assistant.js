@@ -8,6 +8,12 @@ const routing = {
     if (req && req.body && req.body.queryResult && req.body.queryResult.parameters) {
       let { mechanism, direction, directionAndMechanism } = req.body.queryResult.parameters;
 
+      // Assistant will send back upper-cased if that's how it was typed.
+      // Need all lower case for comparisons.
+      mechanism = mechanism.toLowerCase();
+      direction = direction.toLowerCase();
+      directionAndMechanism = directionAndMechanism.toLowerCase();
+
       // Take our confusing directionAndMechanism and break it into
       // both mechanism and direction.
       if (directionAndMechanism && !mechanism || !direction) {
