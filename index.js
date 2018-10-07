@@ -9,9 +9,9 @@ const fs = require('fs');
 app.use(express.json());
 app.use(express.static('static')); // For LetsEncrypt
 app.use(require('helmet')()); // For LetsEncrypt / Turning on SSL
+app.use(routeLogger); // Logs out to STDOUT with useful request info.
 app.use(`/api`, apiRouting);
 app.use(`/assistant`, assistantRouting);
-app.use(routeLogger);
 
 const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/treadmill.nessdan.net/fullchain.pem'),
