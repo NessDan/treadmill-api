@@ -66,7 +66,7 @@ const treadmill = {
         }
     },
     changeIncline: (grade) => {
-        treadmill.setIncline(treadmill.targetIncline.add(grade));
+        treadmill.setIncline(treadmill.targetGrade.add(grade));
     },
     getIncline: () => {
         return treadmill.targetGrade.toString();
