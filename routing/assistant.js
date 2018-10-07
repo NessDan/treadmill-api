@@ -67,25 +67,25 @@ const routing = {
             }
             break;
         }
-
-        res.json({
-          "payload": {
-            "google": {
-              "expectUserResponse": true,
-              "richResponse": {
-                "items": [
-                  {
-                    "simpleResponse": {
-                      "textToSpeech": "Done. How you livin', son?"
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        });
       }
     }
+
+    res.json({
+      "payload": {
+        "google": {
+          "expectUserResponse": true,
+          "richResponse": {
+            "items": [
+              {
+                "simpleResponse": {
+                  "textToSpeech": "Done. How you livin', son?"
+                }
+              }
+            ]
+          }
+        }
+      }
+    });
   },
 };
 
