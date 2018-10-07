@@ -94,6 +94,9 @@ const treadmill = {
             treadmill.targetSpeed = mphRounded;
         }
     },
+    changeSpeed: (mph) => {
+        treadmill.setSpeed(treadmill.targetSpeed.add(mph));
+    },
     setSpeedWire: (targetDutyCycle) => {
         console.log(`Setting the speed duty cycle to ${targetDutyCycle}`);
         speedWire.hardwarePwmWrite(constants.speedWireFrequency, targetDutyCycle);

@@ -65,6 +65,9 @@ const treadmill = {
             if (isTarget) treadmill.currentGrade = gradeRounded;
         }
     },
+    changeIncline: (grade) => {
+        treadmill.setIncline(treadmill.targetIncline.add(grade));
+    },
     getIncline: () => {
         return treadmill.targetGrade.toString();
     },
