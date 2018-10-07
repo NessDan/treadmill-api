@@ -5,7 +5,7 @@ const assistantRouter = express.Router();
 // All of these functions can be hit by visiting /api/functionName
 const routing = {
   routeAssistantWebhook: (req, res) => {
-    if (req && req.body && req.body.queryResult && req.body.queryResult.parameters.length) {
+    if (req && req.body && req.body.queryResult && req.body.queryResult.parameters) {
       let { mechanism, direction, directionAndMechanism } = req.body.queryResult.parameters;
 
       // Take our confusing directionAndMechanism and break it into
