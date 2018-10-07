@@ -94,8 +94,16 @@ const treadmill = {
             treadmill.targetSpeed = mphRounded;
         }
     },
-    changeSpeed: (mph) => {
+    changeSpeed: (mph) => { // For changing speed relatively.
         treadmill.setSpeed(treadmill.targetSpeed.add(mph));
+    },
+    startTreadmill: () => {
+        if (treadmill.targetSpeed.isZero()) {
+            treadmill.setSpeed(constants.startSpeed);
+        }
+    },
+    stopTreadmill: () => {
+        treadmill.setSpeed(0);
     },
     setSpeedWire: (targetDutyCycle) => {
         console.log(`Setting the speed duty cycle to ${targetDutyCycle}`);
