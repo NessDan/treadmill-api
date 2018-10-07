@@ -13,21 +13,21 @@ const routing = {
       if (directionAndMechanism && !mechanism || !direction) {
         switch (directionAndMechanism) {
           case 'faster':
-          mechanism = 'speed';
-          direction = 'up';
-          break;
+            mechanism = 'speed';
+            direction = 'up';
+            break;
           case 'slower':
-          mechanism = 'speed';
-          direction = 'down';
-          break;
+            mechanism = 'speed';
+            direction = 'down';
+            break;
           case 'incline':
-          mechanism = 'incline';
-          direction = 'up';
-          break;
+            mechanism = 'incline';
+            direction = 'up';
+            break;
           case 'decline':
-          mechanism = 'incline';
-          direction = 'down';
-          break;
+            mechanism = 'incline';
+            direction = 'down';
+            break;
         }
       }
 
@@ -70,9 +70,10 @@ const routing = {
           }
         }
       });
-    },
-  };
+    }
+  },
+};
 
-  assistantRouter.post('/', routing.routeAssistantWebhook);
+assistantRouter.post('/', routing.routeAssistantWebhook);
 
-  module.exports = assistantRouter;
+module.exports = assistantRouter;
