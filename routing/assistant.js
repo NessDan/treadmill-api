@@ -41,20 +41,20 @@ const routing = {
         case 'speed':
           switch (direction) {
             case 'up':
-              treadmill.setSpeed(treadmill.targetSpeed.add(0.5));
+              treadmill.setSpeed(treadmill.targetSpeed.toDP(1) + 0.5);
               break;
             case 'down':
-              treadmill.setSpeed(treadmill.targetSpeed.sub(0.5));
+              treadmill.setSpeed(treadmill.targetSpeed.toDP(1) - 0.5);
               break;
           }
           break;
         case 'incline':
           switch (direction) {
             case 'up':
-              treadmill.setIncline(treadmill.targetIncline.add(0.5));
+              treadmill.setIncline(treadmill.targetIncline.toDP(1) + 0.5);
               break;
             case 'down':
-              treadmill.setIncline(treadmill.targetIncline.sub(0.5));
+              treadmill.setIncline(treadmill.targetIncline.toDP(1) - 0.5);
               break;
           }
           break;
