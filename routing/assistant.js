@@ -51,10 +51,10 @@ const routing = {
         case 'incline':
           switch (direction) {
             case 'up':
-              treadmill.changeIncline(0.5);
+              treadmill.changeIncline(1);
               break;
             case 'down':
-              treadmill.changeIncline(-0.5);
+              treadmill.changeIncline(-1);
               break;
           }
           break;
