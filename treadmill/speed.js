@@ -1,7 +1,7 @@
 const Gpio = require('pigpio').Gpio;
 const Decimal = require('decimal.js');
 const speedWire = new Gpio(18, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
-const speedInfoWire = new Gpio(5, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
+const speedInfoWire = new Gpio(25, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
 const {
     performance
 } = require('perf_hooks');
