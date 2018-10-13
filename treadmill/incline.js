@@ -84,7 +84,7 @@ const treadmill = {
         treadmill.saveToInclineFile('-1');
         // As we start inclining, this will make sure that when we hit a wall,
         // the incline wire will turn off and we'll mark the current position.
-        treadmill.watchForInclineLimitReached();
+        // treadmill.watchForInclineLimitReached();
     },
     inclineWireOff: () => {
         console.log(`Flipping the incline wire off. Current: ${treadmill.currentGrade} Target: ${treadmill.targetGrade}`);

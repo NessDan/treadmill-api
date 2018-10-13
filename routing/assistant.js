@@ -49,10 +49,10 @@ const routing = {
           case 'speed':
             switch (direction) {
               case 'up':
-                treadmill.changeSpeed(0.5);
+                treadmill.changeSpeed(0.2);
                 break;
               case 'down':
-                treadmill.changeSpeed(-0.5);
+                treadmill.changeSpeed(-0.2);
                 break;
             }
             break;
