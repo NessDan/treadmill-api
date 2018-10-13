@@ -8,7 +8,7 @@ const https = require('https');
 const fs = require('fs');
 
 // Load up the authorization file
-const password = fs.readFileSync('password');
+const password = fs.readFileSync('password', 'utf8').trim();
 
 app.use(express.json());
 app.use(express.static('static')); // For LetsEncrypt
