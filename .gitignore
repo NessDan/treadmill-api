@@ -60,4 +60,8 @@ typings/
 # editor
 .vscode
 
+# Stores the last incline position
 lastInclinePosition.txt
+
+# Enables basic auth if set
+password
