@@ -10,7 +10,7 @@ const constants = require('./constants.js');
 const treadmill = {
     targetSpeed: new Decimal(0),
     currentSpeed: new Decimal(0),
-    translateMphToDutyCycle = (mph) => {
+    translateMphToDutyCycle: (mph) => {
         /* EYEBALL TESTING
         At 70000 we get motion, super slow but it blinks normally and at least turns.
         80000 closer to .5mph?
