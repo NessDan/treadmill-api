@@ -52,7 +52,7 @@ const treadmill = {
             return 0; // If we're asked to get the duty cycle for anything below 0.5mph, just return 0.
         }
 
-        return dutyCycleForMph.toNumber(); // pigpio is expecting a number.
+        return dutyCycleForMph.toDP(0).toNumber(); // pigpio is expecting a number with no decimals.
     },
     graduallyAchieveTargetSpeed: () => {
         // Going from 0mph to 6mph takes roughly 11s
