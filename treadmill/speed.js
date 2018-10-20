@@ -94,7 +94,9 @@ const treadmill = {
         const mphUnsafe = Number.parseFloat(mph); // In case someone sent us a string-string...
         const mphDecimal = new Decimal(mphUnsafe);
 
+        console.log('mphDecimal: ', mphDecimal.toNumber());
         if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(constants.maxSpeed)) {
+            console.log('mphDecimal is valid.');
             const mphRounded = mphDecimal.toDP(1);
             treadmill.targetSpeed = mphRounded;
         }
