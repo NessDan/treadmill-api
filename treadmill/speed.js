@@ -73,7 +73,7 @@ const treadmill = {
         let isIncreasing = treadmill.currentSpeed.lt(treadmill.targetSpeed);
         let isDecreasing = treadmill.currentSpeed.gt(treadmill.targetSpeed);
 
-        if (treadmill.currentSpeed.lt(constants.maxSpeed)) {
+        if (treadmill.currentSpeed.lte(constants.maxSpeed)) {
             if (isIncreasing) {
                 // If we're increasing, cap the currentSpeed at targetSpeed or maxSpeed (prevents overshooting / way too fast)
                 treadmill.currentSpeed = Decimal.min(treadmill.currentSpeed.add(speedChange), treadmill.targetSpeed, constants.maxSpeed);
@@ -95,7 +95,7 @@ const treadmill = {
         const mphDecimal = new Decimal(mphUnsafe);
 
         console.log('mphDecimal: ', mphDecimal.toNumber());
-        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(constants.maxSpeed)) {
+        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lte(constants.maxSpeed)) {
             console.log('mphDecimal is valid.');
             const mphRounded = mphDecimal.toDP(1);
             treadmill.targetSpeed = mphRounded;
