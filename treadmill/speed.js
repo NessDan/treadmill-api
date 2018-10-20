@@ -36,15 +36,25 @@ const treadmill = {
 
 
             Using stock console:
-            1mph at 240fps = 1 rotation every 3.17s (Getting this at 205000)
-            At 1mph, the tachometer triggers 154 times on average.
-            That means 2mph would be 308 tach triggers.
-            I finally reached 308 tach triggers using 61400 as a mph multiplier
+            Using this video at 240fps: https://photos.app.goo.gl/SZ999Jae4BVD6DwYA
+            1mph: [3.092,3.168,3.155,3.145,3.260,3.215,3.171,3.253,3.147,3.140,3.169,3.327]
+            ^ avg'd, 3.186833s / rotation (in slow-mo)
+            240fps -> 29.276fps (8.19728124x slow motion)
+            3.186833 / 8.19728124 = 1 rotation / 0.38876706882390677s (in real-time) (or 388.767ms)
+            At duty cycle 204300 = 388.796ms (close enough!)
+            So 204300 = 1mph
+            2mph = 388.767ms / 2 = 0.194383534s = 194.383ms per rotation
+            At duty cycle 269300 = 194.371ms (close enough!)
+            4mph = 194.383ms / 2 = 0.097191767s = 97.191ms per rotation
+            269300-204300=65000 per mph duty cycle increase
+            So 4mph will possibly be 399300.
+            At duty cycle 399300 = 97.160ms
+            Therefore, duty cycle / mph = 65000
             */
 
             // Using the above testing, I figured out the floor duty cycle
-            const dutyCycleFloor = new Decimal(150000); // Slowest speed before things added increases speed Runs around 0.5mph?
-            const mphToDutyCycleMultiplier = new Decimal(61400); // Increments of 1mph = 61400 duty cycle
+            const dutyCycleFloor = new Decimal(139300); // From above testing. duty cycle at 1mph - 1mph increment duty cycle.
+            const mphToDutyCycleMultiplier = new Decimal(65000); // Increments of 1mph
 
             let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
 
