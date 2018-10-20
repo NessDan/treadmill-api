@@ -78,7 +78,7 @@ const routing = {
             "items": [
               {
                 "simpleResponse": {
-                  "textToSpeech": ""
+                  "textToSpeech": "Done."
                 }
               }
             ]
