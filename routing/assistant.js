@@ -73,7 +73,16 @@ const routing = {
     res.json({
       "payload": {
         "google": {
-          "finalResponse": false,
+          "expectUserResponse": false,
+          "richResponse": {
+            "items": [
+              {
+                "simpleResponse": {
+                  "textToSpeech": ""
+                }
+              }
+            ]
+          }
         }
       }
     });
