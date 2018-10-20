@@ -70,7 +70,13 @@ const routing = {
       }
     }
 
-    res.json({});
+    res.json({
+      "payload": {
+        "google": {
+          "finalResponse": false,
+        }
+      }
+    });
   },
 };
 
