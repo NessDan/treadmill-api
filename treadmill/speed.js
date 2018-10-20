@@ -70,16 +70,17 @@ const treadmill = {
 
         // Let's update our speed below:
         let speedChange = constants.speedChangeEveryInterval;
+        let isIncreasing = treadmill.currentSpeed.lt(treadmill.targetSpeed);
+        let isDecreasing = treadmill.currentSpeed.gt(treadmill.targetSpeed);
 
-        // Speed change is positive when going up,
-        // But if the target is below our actual,
-        // We slow down by negating the speedChange
-        if (treadmill.targetSpeed.lt(treadmill.currentSpeed)) {
-            speedChange = speedChange.neg();
-        }
-
-        if (speedChange && treadmill.currentSpeed.lt(constants.maxSpeed)) {
-            treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
+        if (treadmill.currentSpeed.lt(constants.maxSpeed)) {
+            if (isIncreasing) {
+                // If we're increasing, cap the currentSpeed at targetSpeed or maxSpeed (prevents overshooting / way too fast)
+                treadmill.currentSpeed = Decimal.min(treadmill.currentSpeed.add(speedChange), treadmill.targetSpeed, constants.maxSpeed);
+            } else if (isDecreasing) {
+                // If we're decreasing, cap the currentSpeed at targetSpeed or 0 (prevents overshooting / negative)
+                treadmill.currentSpeed = Decimal.max(treadmill.currentSpeed.sub(speedChange), treadmill.targetSpeed, 0);
+            }
             const newDutyCycle = treadmill.translateMphToDutyCycle(treadmill.currentSpeed);
 
             console.log('targ: ', treadmill.targetSpeed.toNumber());
