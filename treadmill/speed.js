@@ -10,96 +10,93 @@ const constants = require('./constants.js');
 const treadmill = {
     targetSpeed: new Decimal(0),
     currentSpeed: new Decimal(0),
-    achieveTargetSpeedLoopIntervalId: 0,
-    achieveTargetSpeedLoop: () => {
+    translateMphToDutyCycle: (mph) => {
+        /* EYEBALL TESTING
+        At 70000 we get motion, super slow but it blinks normally and at least turns.
+        80000 closer to .5mph?
+        90000 no diff
+        100000 no diff
+        150000 no diff
+        200000 speed increased. Close to 1mph+?
+        300000 speed inc. A little lower than 3mph
+        350000 speed inc. Feels linear increasing. This is around 4 or 5 mph EDIT 3.5mph according to google fit.
+        350000 speed 3.53mph according to google fit.
+        300000 speed is 3.11 mph
+        400000 is 5.5mph from google fit
+        150000 should be floor, slowest speed before anything added to it increases speed.
+
+        Using stock console:
+        Using this video at 240fps: https://photos.app.goo.gl/SZ999Jae4BVD6DwYA
+        1mph: [3.092,3.168,3.155,3.145,3.260,3.215,3.171,3.253,3.147,3.140,3.169,3.327]
+        ^ avg'd, 3.186833s / rotation (in slow-mo)
+        240fps -> 29.276fps (8.19728124x slow motion)
+        3.186833 / 8.19728124 = 1 rotation / 0.38876706882390677s (in real-time) (or 388.767ms)
+        At duty cycle 204300 = 388.796ms (close enough!)
+        So 204300 = 1mph
+        2mph = 388.767ms / 2 = 0.194383534s = 194.383ms per rotation
+        At duty cycle 269300 = 194.371ms (close enough!)
+        4mph = 194.383ms / 2 = 0.097191767s = 97.191ms per rotation
+        269300-204300=65000 per mph duty cycle increase
+        So 4mph will possibly be 399300.
+        At duty cycle 399300 = 97.160ms
+        Therefore, duty cycle / mph = 65000
+        */
+
+        // Using the above testing, I figured out the floor duty cycle
+        const dutyCycleFloor = new Decimal(139300); // From above testing. duty cycle at 1mph - 1mph increment duty cycle.
+        const mphToDutyCycleMultiplier = new Decimal(65000); // Increments of 1mph
+
+        let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
+
+        if (dutyCycleForMph.lte(dutyCycleFloor)) {
+            return 0; // If we're asked to get the duty cycle for anything below 0.5mph, just return 0.
+        }
+
+        return dutyCycleForMph.toDP(0).toNumber(); // pigpio is expecting a number with no decimals.
+    },
+    graduallyAchieveTargetSpeed: () => {
         // Going from 0mph to 6mph takes roughly 11s
         // https://photos.app.goo.gl/h2WShMgJdqL9JZsq5
         // Therefore, for every 1mph, it takes 1.833s
-        // And since we update in 0.1 increments,
-        // Every 0.1mph takes 0.18333s which is about 183ms
-        const dutyCycleUpdaterFrequencyMs = 183;
+        // So every 1s the mph changes 0.545553737mph
+        // And every 1ms the mph changes 0.000545553737mph
+        // Every 100ms we change speed at 0.0545553737mph
+        // ALSO every 0.1mph takes 0.18333s which is about 183ms
+        const weReachedTarget = treadmill.targetSpeed.eq(treadmill.currentSpeed);
 
-        const translateMphToDutyCycle = (mph) => {
-            /* EYEBALL TESTING
-            At 70000 we get motion, super slow but it blinks normally and at least turns.
-            80000 closer to .5mph?
-            90000 no diff
-            100000 no diff
-            150000 no diff
-            200000 speed increased. Close to 1mph+?
-            300000 speed inc. A little lower than 3mph
-            350000 speed inc. Feels linear increasing. This is around 4 or 5 mph EDIT 3.5mph according to google fit.
-            350000 speed 3.53mph according to google fit.
-            300000 speed is 3.11 mph
-            400000 is 5.5mph from google fit
-            150000 should be floor, slowest speed before anything added to it increases speed.
+        if (weReachedTarget) {
+            return;
+        }
 
+        // Let's update our speed below:
+        let speedChange = constants.speedChangeEveryInterval;
+        let isIncreasing = treadmill.currentSpeed.lt(treadmill.targetSpeed);
+        let isDecreasing = treadmill.currentSpeed.gt(treadmill.targetSpeed);
 
-            Using stock console:
-            Using this video at 240fps: https://photos.app.goo.gl/SZ999Jae4BVD6DwYA
-            1mph: [3.092,3.168,3.155,3.145,3.260,3.215,3.171,3.253,3.147,3.140,3.169,3.327]
-            ^ avg'd, 3.186833s / rotation (in slow-mo)
-            240fps -> 29.276fps (8.19728124x slow motion)
-            3.186833 / 8.19728124 = 1 rotation / 0.38876706882390677s (in real-time) (or 388.767ms)
-            At duty cycle 204300 = 388.796ms (close enough!)
-            So 204300 = 1mph
-            2mph = 388.767ms / 2 = 0.194383534s = 194.383ms per rotation
-            At duty cycle 269300 = 194.371ms (close enough!)
-            4mph = 194.383ms / 2 = 0.097191767s = 97.191ms per rotation
-            269300-204300=65000 per mph duty cycle increase
-            So 4mph will possibly be 399300.
-            At duty cycle 399300 = 97.160ms
-            Therefore, duty cycle / mph = 65000
-            */
-
-            // Using the above testing, I figured out the floor duty cycle
-            const dutyCycleFloor = new Decimal(139300); // From above testing. duty cycle at 1mph - 1mph increment duty cycle.
-            const mphToDutyCycleMultiplier = new Decimal(65000); // Increments of 1mph
-
-            let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
-
-            if (dutyCycleForMph.lte(dutyCycleFloor)) {
-                return 0; // If we're asked to get the duty cycle for anything below 0.5mph, just return 0.
+        if (treadmill.currentSpeed.lte(constants.maxSpeed)) {
+            if (isIncreasing) {
+                // If we're increasing, cap the currentSpeed at targetSpeed or maxSpeed (prevents overshooting / way too fast)
+                treadmill.currentSpeed = Decimal.min(treadmill.currentSpeed.add(speedChange), treadmill.targetSpeed, constants.maxSpeed);
+            } else if (isDecreasing) {
+                // If we're decreasing, cap the currentSpeed at targetSpeed or 0 (prevents overshooting / negative)
+                treadmill.currentSpeed = Decimal.max(treadmill.currentSpeed.sub(speedChange), treadmill.targetSpeed, 0);
             }
+            const newDutyCycle = treadmill.translateMphToDutyCycle(treadmill.currentSpeed);
 
-            return dutyCycleForMph.toNumber(); // pigpio is expecting a number.
-        };
+            console.log('targ: ', treadmill.targetSpeed.toNumber());
+            console.log('cur: ', treadmill.currentSpeed.toNumber());
+            console.log('duty: ', newDutyCycle);
 
-        treadmill.achieveTargetSpeedLoopIntervalId = setInterval(() => {
-            const weReachedTarget = treadmill.targetSpeed.eq(treadmill.currentSpeed);
-
-            if (weReachedTarget) {
-                return;
-            }
-
-            // Let's update our speed below:
-
-            let speedChange = new Decimal(0.1);
-
-            // Speed change is positive when going up,
-            // But if the target is below our actual,
-            // We slow down by negating the speedChange
-            if (treadmill.targetSpeed.lt(treadmill.currentSpeed)) {
-                speedChange = speedChange.neg();
-            }
-
-            if (speedChange && treadmill.currentSpeed.lt(constants.maxSpeed)) {
-            treadmill.currentSpeed = treadmill.currentSpeed.add(speedChange);
-                const newDutyCycle = translateMphToDutyCycle(treadmill.currentSpeed);
-
-                console.log('targ: ', treadmill.targetSpeed.toNumber());
-                console.log('cur: ', treadmill.currentSpeed.toNumber());
-                console.log('duty: ', newDutyCycle);
-
-                treadmill.setSpeedWire(newDutyCycle);
-            }
-        }, dutyCycleUpdaterFrequencyMs);
+            treadmill.setSpeedWire(newDutyCycle);
+        }
     },
     setSpeed: (mph) => {
         const mphUnsafe = Number.parseFloat(mph); // In case someone sent us a string-string...
         const mphDecimal = new Decimal(mphUnsafe);
 
-        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lt(constants.maxSpeed)) {
+        console.log('mphDecimal: ', mphDecimal.toNumber());
+        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lte(constants.maxSpeed)) {
+            console.log('mphDecimal is valid.');
             const mphRounded = mphDecimal.toDP(1);
             treadmill.targetSpeed = mphRounded;
         }

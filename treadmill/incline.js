@@ -16,43 +16,34 @@ const treadmill = {
     isInclining: false,
     isDeclining: false,
     isCalibrating: false,
-    achieveTargetInclineLoopIntervalId: 0,
-    achieveTargetInclineLoop: () => {
-        // const ticksPerGrade = new Decimal(4.111111);
-        // const translateGradeToTicks = (grade) => new Decimal(grade).mul(ticksPerGrade);
-        const inclineValueUpdateInterval = 10; // Every 10ms we check and re-target our incline.
-        let inclineAmountEveryInterval = constants.safeInclineGradeValueEveryMs * inclineValueUpdateInterval;
-        let declineAmountEveryInterval = constants.safeDeclineGradeValueEveryMs * inclineValueUpdateInterval;
+    graduallyAchieveTargetIncline: () => {
+        if (treadmill.isCalibrating) {
+            return;
+        }
 
-        treadmill.achieveTargetInclineLoopIntervalId = setInterval(() => {
-            if (treadmill.isCalibrating) {
-                return;
+        // When we've reached the target after it being set:
+        if (treadmill.targetGrade.eq(treadmill.currentGrade) && (treadmill.isInclining || treadmill.isDeclining)) {
+            console.log("Incline position reached");
+            treadmill.inclineWireOff();
+            treadmill.declineWireOff();
+            treadmill.saveToInclineFile(treadmill.currentGrade);
+        } else if (treadmill.currentGrade.lt(treadmill.targetGrade)) {
+            if (!treadmill.isInclining) {
+                treadmill.inclineWireOn();
             }
 
-            // When we've reached the target after it being set:
-            if (treadmill.targetGrade.eq(treadmill.currentGrade) && (treadmill.isInclining || treadmill.isDeclining)) {
-                console.log("Incline position reached");
-                treadmill.inclineWireOff();
-                treadmill.declineWireOff();
-                treadmill.saveToInclineFile(treadmill.currentGrade);
-            } else if (treadmill.currentGrade.lt(treadmill.targetGrade)) {
-                if (!treadmill.isInclining) {
-                    treadmill.inclineWireOn();
-                }
-
-                // currentGrade should never be greater than targetGrade or max grade going up.
-                treadmill.currentGrade = Decimal.min(treadmill.currentGrade.add(inclineAmountEveryInterval), treadmill.targetGrade, constants.maximumGrade);
-            } else if (treadmill.currentGrade.gt(treadmill.targetGrade)) {
-                // isDeclining could do digitalRead every time or be a saved value.
-                // https://www.npmjs.com/package/pigpio#performance
-                if (!treadmill.isDeclining) {
-                    treadmill.declineWireOn();
-                }
-
-                // currentGrade should never be lower than targetGrade or 0 going down.
-                treadmill.currentGrade = Decimal.max(treadmill.currentGrade.sub(declineAmountEveryInterval), treadmill.targetGrade, 0);
+            // currentGrade should never be greater than targetGrade or max grade going up.
+            treadmill.currentGrade = Decimal.min(treadmill.currentGrade.add(constants.inclineAmountEveryInterval), treadmill.targetGrade, constants.maximumGrade);
+        } else if (treadmill.currentGrade.gt(treadmill.targetGrade)) {
+            // isDeclining could do digitalRead every time or be a saved value.
+            // https://www.npmjs.com/package/pigpio#performance
+            if (!treadmill.isDeclining) {
+                treadmill.declineWireOn();
             }
-        }, inclineValueUpdateInterval);
+
+            // currentGrade should never be lower than targetGrade or 0 going down.
+            treadmill.currentGrade = Decimal.max(treadmill.currentGrade.sub(constants.declineAmountEveryInterval), treadmill.targetGrade, 0);
+        }
     },
     setIncline: (grade, isTarget) => {
         const unsafeIncline = Number.parseFloat(grade); // In case someone sent us a string...

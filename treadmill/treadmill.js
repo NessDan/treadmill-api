@@ -7,7 +7,9 @@ const onError = (err) => {
     treadmill.cleanUp();
     process.exit(1);
 };
-var domain = require('domain').create();
+const constants = require('./constants.js');
+// Error Handling code to clear out GPIO
+const domain = require('domain').create();
 domain.on('error', onError);
 process.on('unhandledRejection', onError);
 process.on('uncaughtException', onError);
@@ -27,11 +29,17 @@ const treadmill = {
         // We have no way of knowing what the incline is, so load from a file
         // we saved what the last known incline state was.
         treadmill.setLastKnownIncline();
-
-        // Start main logic loops to that achieve the speed and incline
-        // the user requests.
-        treadmill.achieveTargetSpeedLoop();
-        treadmill.achieveTargetInclineLoop();
+        treadmill.updateLogicLoop();
+    },
+    updateLogicLoopIntervalId: 0,
+    updateLogicLoop: () => {
+        // Sets an interval where different functions can run at an X ms loop.
+        treadmill.updateLogicLoopIntervalId = setInterval(() => {
+            // Start main logic loops to that achieve the speed and incline
+            // the user requests.
+            treadmill.graduallyAchieveTargetSpeed();
+            treadmill.graduallyAchieveTargetIncline();
+        }, constants.updateLogicLoopInterval);
     },
     cleanGpio: () => {
         treadmill.inclineWireOff();
@@ -42,8 +50,7 @@ const treadmill = {
         // Should get called on exit / termination
 
         // No longer update targeted speeds or inclines.
-        clearInterval(treadmill.achieveTargetInclineLoopIntervalId);
-        clearInterval(treadmill.achieveTargetSpeedLoopIntervalId);
+        clearInterval(treadmill.updateLogicLoopIntervalId);
 
         // Turn off all our wires.
         treadmill.cleanGpio();
