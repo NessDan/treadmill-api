@@ -49,11 +49,18 @@ const treadmill = {
         const unsafeIncline = Number.parseFloat(grade); // In case someone sent us a string...
         const incline = new Decimal(unsafeIncline);
 
-        // Must be a number between maximum grade and 0
-        if (!incline.isNaN() && !incline.isNeg() && incline.lt(constants.maximumGrade)) {
-            const gradeRounded = incline.toDP(1);
-            treadmill.targetGrade = gradeRounded;
-            if (isTarget) treadmill.currentGrade = gradeRounded;
+        // Must be a number and below the maximum grade
+        if (!incline.isNaN() && incline.lt(constants.maximumGrade)) {
+            if (!isTarget && incline.lte(0)) {
+                // If we're not setting current & target
+                // and we're told to go to 0, just calibrate incline
+                // Gets the same effect and puts us back at zero.
+                treadmill.calibrateIncline();
+            } else {
+                const gradeRounded = incline.toDP(1);
+                treadmill.targetGrade = gradeRounded;
+                if (isTarget) treadmill.currentGrade = gradeRounded;
+            }
         }
     },
     changeIncline: (grade) => {
