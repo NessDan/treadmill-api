@@ -6,6 +6,7 @@ const assistantRouter = express.Router();
 const routing = {
   routeAssistantWebhook: (req, res) => {
     let error = false;
+    let response = "Done."; // By default, just return "Done."
 
     if (req && req.body && req.body.queryResult && req.body.queryResult.parameters) {
       const query = req.body.queryResult;
@@ -28,12 +29,20 @@ const routing = {
         case "Treadmill Slower":
           treadmill.changeSpeed(-0.2);
           break;
+        case "Get Speed":
+          response = `${treadmill.getSpeed()} mph.`;
+          break;
+        case "Get Incline":
+          response = treadmill.getIncline() + "%.";
         default:
           error = true;
           console.log(query.intent);
           break;
       }
     }
+
+    // If an error occurred then change the response.
+    response = error ? "Error." : response;
 
     res.json({
       "payload": {
@@ -43,7 +52,7 @@ const routing = {
             "items": [
               {
                 "simpleResponse": {
-                  "textToSpeech": !error ? "Done." : "Error."
+                  "textToSpeech": response,
                 }
               }
             ]
