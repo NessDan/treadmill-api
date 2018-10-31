@@ -33,7 +33,8 @@ const routing = {
           response = `${treadmill.getSpeed()} mph.`;
           break;
         case "Get Incline":
-          response = treadmill.getIncline() + "%.";
+          response = `${treadmill.getIncline()}%.`;
+          break;
         default:
           error = true;
           console.log(query.intent);
