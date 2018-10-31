@@ -29,6 +29,14 @@ const routing = {
         case "Treadmill Slower":
           treadmill.changeSpeed(-0.2);
           break;
+        case "Set Speed":
+          treadmill.setSpeed();
+          break;
+        case "Set Incline":
+          const grade = req.body.queryResult.parameters.grade;
+          treadmill.setIncline(grade);
+          response = `Done. Set incline to ${grade}.`;
+          break;
         case "Get Speed":
           response = `${treadmill.getSpeed()} mph.`;
           break;
