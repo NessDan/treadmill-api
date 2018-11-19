@@ -30,7 +30,7 @@ const routing = {
           treadmill.changeSpeed(-0.2);
           break;
         case "Set Speed":
-          const mph = req.body.queryResult.parameters.mph;
+          const mph = req.body.queryResult.parameters.mph.amount;
           treadmill.setSpeed(mph);
           response = `Done. Speed set to ${mph}.`;
           break;
