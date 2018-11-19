@@ -6,10 +6,12 @@ const basicAuth = require('express-basic-auth');
 const app = express();
 const https = require('https');
 const fs = require('fs');
+var cors = require('cors')
 
 // Load up the authorization file
 const password = fs.readFileSync('password', 'utf8').trim();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.static('static')); // For LetsEncrypt
 app.use(require('helmet')()); // For LetsEncrypt / Turning on SSL
