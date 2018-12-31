@@ -4,16 +4,17 @@ const assistantRouting = require('./routing/assistant.js');
 const routeLogger = require('./routing/logger.js');
 const basicAuth = require('express-basic-auth');
 const app = express();
+const letsEncryptApp = express();
 const https = require('https');
 const fs = require('fs');
-var cors = require('cors')
+const cors = require('cors')
 
 // Load up the authorization file
 const password = fs.readFileSync('password', 'utf8').trim();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('static')); // For LetsEncrypt
+letsEncryptApp.use(express.static('static')); // For LetsEncrypt
 app.use(require('helmet')()); // For LetsEncrypt / Turning on SSL
 if (password) {
     app.use(basicAuth({
@@ -31,5 +32,6 @@ const options = {
     key: fs.readFileSync('/etc/letsencrypt/live/treadmill.nessdan.net/privkey.pem'),
 };
 
+letsEncryptApp.listen(80);
 https.createServer(options, app).listen(443);
-console.log(`Treadmill API now listening on SSL.`);
+console.log(`Treadmill API now listening.`);
