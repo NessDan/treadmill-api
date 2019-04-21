@@ -18,13 +18,13 @@
   },
   "homepage": "https://github.com/NessDan/treadmill-api#readme",
   "dependencies": {
+    "@abandonware/noble": "git+https://github.com/abandonware/noble.git#master",
+    "cors": "^2.8.5",
     "decimal.js": "^10.0.1",
     "express": "^4.16.3",
     "express-basic-auth": "^1.1.5",
     "helmet": "^3.13.0",
     "nodemon": "^1.18.4",
-    "noble": "^1.9.1",
-    "pigpio": "^1.1.2",
-    "cors": "^2.8.5"
+    "pigpio": "^1.1.2"
   }
 }
