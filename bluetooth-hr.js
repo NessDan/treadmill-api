@@ -1,8 +1,8 @@
 //const noble = require('noble');
 const noble = require('@abandonware/noble');
 
-noble.on('discover', (per) => {
-    console.log(per);
+noble.on('discover', (peripheral) => {
+    console.log(peripheral);
     noble.stopScanning();
 
     peripheral.connect((error) => {
