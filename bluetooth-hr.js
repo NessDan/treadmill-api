@@ -3,9 +3,12 @@ const noble = require('@abandonware/noble');
 
 noble.on('discover', (peripheral) => {
     noble.on('scanStop', () => {
-        peripheral.once('connect', () => {
+        console.log('scan stopped');
+        peripheral.on('connect', () => {
+            console.log('connected');
             // peripheral.discoverServices(["180d"], (error, services) => {
             peripheral.discoverAllServicesAndCharacteristics((error, services, characteristics) => {
+                console.log('discovered');
                 if (error) {
                     console.log('err2', error);
                 }
