@@ -6,7 +6,12 @@ noble.on('discover', (peripheral) => {
         console.log('scan stopped');
         peripheral.on('connect', () => {
             console.log('connected');
+            peripheral.once('servicesDiscover', (services) => {
+                console.log(services);
+            });
+            peripheral.discoverServices();
             // peripheral.discoverServices(["180d"], (error, services) => {
+            /*
             peripheral.discoverAllServicesAndCharacteristics((error, services, characteristics) => {
                 console.log('discovered');
                 if (error) {
@@ -16,7 +21,7 @@ noble.on('discover', (peripheral) => {
                 console.log(services);
                 console.log(characteristics);
             });
-
+            */
         });
 
         peripheral.connect((error) => {
