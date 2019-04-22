@@ -7,12 +7,11 @@ noble.on('discover', (peripheral) => {
         peripheral.once('connect', () => {
             console.log('connected');
             peripheral.once('servicesDiscover', (services) => {
+                console.log('discovered listener');
                 console.log(services);
             });
-            peripheral.discoverAllServicesAndCharacteristics();
             // peripheral.discoverServices(["180d"], (error, services) => {
-            /*
-            peripheral.discoverAllServicesAndCharacteristics((error, services, characteristics) => {
+            peripheral.discoverSomeServicesAndCharacteristics(["180d"], ["2a37"], (error, services, characteristics) => {
                 console.log('discovered');
                 if (error) {
                     console.log('err2', error);
@@ -21,7 +20,6 @@ noble.on('discover', (peripheral) => {
                 console.log(services);
                 console.log(characteristics);
             });
-            */
         });
 
         peripheral.connect((error) => {
