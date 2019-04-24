@@ -11,7 +11,13 @@ const treadmill = {
     targetSpeed: new Decimal(0),
     currentSpeed: new Decimal(0),
     translateMphToDutyCycle: (mph) => {
-        /* EYEBALL TESTING
+        /*
+            THE MIGHTY SPREADSHEET OF TESTING AND DATA!!!
+            https://docs.google.com/spreadsheets/d/1iB9PY8yc2AVhMQdQ8LYhLKZ4KrGB5Nou8P9aVCMPZko/edit?usp=sharing
+        */
+        /*
+        IGNORE THIS EYEBALL TESTING, USE SPREADSHEET!!
+        ALL OF THIS IS KEPT FOR SENTIMENTAL REASONS ONLY!!!
         At 70000 we get motion, super slow but it blinks normally and at least turns.
         80000 closer to .5mph?
         90000 no diff
@@ -43,8 +49,11 @@ const treadmill = {
         */
 
         // Using the above testing, I figured out the floor duty cycle
-        const dutyCycleFloor = new Decimal(139300); // From above testing. duty cycle at 1mph - 1mph increment duty cycle.
-        const mphToDutyCycleMultiplier = new Decimal(65000); // Increments of 1mph
+        // Duty cycle at 1mph - 1mph increment = duty cycle floor.
+        const dutyCycleFloorNoWalking = new Decimal(139300);
+        const dutyCycleFloorPersonWalking = new Decimal(145150); // 160lb person walking on treadmill raises floor.
+        const dutyCycleFloor = dutyCycleFloorPersonWalking;
+        const mphToDutyCycleMultiplier = new Decimal(58500); // Increments of 1mph
 
         let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
 
