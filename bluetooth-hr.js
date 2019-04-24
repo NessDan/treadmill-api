@@ -23,8 +23,7 @@ noble.on('discover', (peripheral) => {
 
                 if (hrChar) {
                     hrChar.on('data', (data, isNotification) => {
-                        console.log('data', data.toString());
-                        console.log('isNotification', isNotification);
+                        console.log('HR data', parseInt(data.toString('hex'), 16));
                     });
 
                     hrChar.subscribe((err) => {
