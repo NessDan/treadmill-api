@@ -1,0 +1,26 @@
+1. Setup USB SSH: https://desertbot.io/blog/headless-pi-zero-ssh-access-over-usb-windows
+1. Change .bashrc HISTSIZE and HISTFILESIZE to be unlimited
+1. Run `sudo raspi-config` and update everything accordingly.
+1. sudo apt install git
+1. Setup git settings
+1. Setup SSH Private key + Add it to Github
+1. Git Clone the repo, `git clone git@github.com:NessDan/treadmill-api.git`
+1. Inside the repo make a file named "password", the value is used for https auth.
+1. Install NVM like normal (no special setup for Pi)
+1. `nvm install --lts` (installs latest lts node)
+1. Run this command to allow node to be run as sudo (for GPIO access): https://stackoverflow.com/a/29903645/231730
+1. Install pigpio, `sudo apt install pigpio`
+1. `npm install` in the git repo
+1. Install certbot `sudo apt-get install certbot` for letsencrypt
+1. Start the project in a nohup, `nohup npm start &`
+1. In the same directory, run `sudo certbot certonly --webroot -w ./static -d treadmill.nessdan.net`
+    1. This will hit the treadmill API's HTTP server and create a certificate.
+    1. After the script is run, kill the nohup server.
+?1. Automate renewal by running `sudo crontab -e` and adding this entry:
+    `@monthly sudo certbot renew`
+    (Can remove ? after 3 months if https still works)
+    NOTE TO FUTURE SELF: found this command in a crontab for the old drive:
+        `0 0 * * 0 letsencrypt renew`
+        If the above doesn't work, this may work?
+1. Start the treadmill API on bootup, `sudo nano /etc/rc.local`
+    Add `cd /home/pi/treadmill-api && npm start` before the "exit"
