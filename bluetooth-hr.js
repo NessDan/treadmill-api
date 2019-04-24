@@ -23,7 +23,7 @@ noble.on('discover', (peripheral) => {
 
                 if (hrChar) {
                     hrChar.on('data', (data, isNotification) => {
-                        console.log('data', data);
+                        console.log('data', data.toString());
                         console.log('isNotification', isNotification);
                     });
 
