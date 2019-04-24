@@ -19,6 +19,20 @@ noble.on('discover', (peripheral) => {
 
                 console.log(services);
                 console.log(characteristics);
+                const hrChar = characteristics[0];
+
+                if (hrChar) {
+                    hrChar.on('data', (data, isNotification) => {
+                        console.log('data', data);
+                        console.log('isNotification', isNotification);
+                    });
+
+                    hrChar.subscribe((err) => {
+                        if (err) {
+                            console.log("error subscribing to hrchar");
+                        }
+                    })
+                }
             });
         });
 
