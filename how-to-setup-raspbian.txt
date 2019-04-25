@@ -3,6 +3,7 @@
 1. Run `sudo raspi-config` and update everything accordingly.
 1. sudo apt install git
 1. Setup git settings
+    1. For email, `git config --global user.email "304269+NessDan@users.noreply.github.com"`
 1. Setup SSH Private key + Add it to Github
 1. Git Clone the repo, `git clone git@github.com:NessDan/treadmill-api.git`
 1. Inside the repo make a file named "password", the value is used for https auth.
