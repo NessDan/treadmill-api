@@ -11,6 +11,9 @@
 1. `nvm install --lts` (installs latest lts node)
 1. Run this command to allow node to be run as sudo (for GPIO access): https://stackoverflow.com/a/29903645/231730
 1. Install pigpio, `sudo apt install pigpio`
+1. Enable Bluetooth to be accessed without root.
+    1. https://github.com/abandonware/noble/tree/sandbox/rzr/review/master#running-on-linux
+    1. `sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)`
 1. `npm install` in the git repo
 1. Install certbot `sudo apt-get install certbot` for letsencrypt
 1. Start the project in a nohup, `nohup npm start &`
