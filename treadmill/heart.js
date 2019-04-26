@@ -11,21 +11,19 @@ const treadmill = {
     noble.startScanning(["180d"]); // HR services only
   },
   foundHeartRateDevice: peripherals => {
-    peripheral.once("connect", () => {});
+    const peripheral = peripherals[0]; // Just use the first one.
 
-    peripheral.connect(error => {
-      if (error) {
-        console.log("error");
-        console.log(error);
-      }
-    });
+    peripheral.connect(treadmill.connectedHeartRateDevice);
   },
-  connectedHeartRateDevice: () => {
-    console.log("connected");
+  connectedHeartRateDevice: error => {
+    if (error) {
+      console.log("error");
+      console.log(error);
+    }
 
     peripheral.discoverSomeServicesAndCharacteristics(
-      ["180d"],
-      ["2a37"],
+      ["180d"], // Heart Rate service
+      ["2a37"], // Heart Rate characteristic
       treadmill.discoveredServicesAndCharacteristics
     );
   },
