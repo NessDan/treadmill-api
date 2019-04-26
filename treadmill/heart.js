@@ -3,16 +3,14 @@ const noble = require("@abandonware/noble"); // Have to use this fork, main repo
 const treadmill = {
   heartRate: 0,
   startHeartRateServices: async () => {
-    noble.on("discover", peripherals => {
+    noble.on("discover", peripheral => {
       noble.stopScanning();
-      treadmill.foundHeartRateDevice(peripherals);
+      treadmill.foundHeartRateDevice(peripheral);
     });
 
     noble.startScanning(["180d"]); // HR services only
   },
-  foundHeartRateDevice: peripherals => {
-    const peripheral = peripherals[0]; // Just use the first one.
-
+  foundHeartRateDevice: peripheral => {
     peripheral.connect(treadmill.connectedHeartRateDevice);
   },
   connectedHeartRateDevice: error => {
