@@ -1,21 +1,26 @@
-const Gpio = require('pigpio').Gpio;
-const Decimal = require('decimal.js');
-const speedWire = new Gpio(18, { mode: Gpio.OUTPUT, pullUpDown: Gpio.PUD_DOWN });
-const speedInfoWire = new Gpio(22, { mode: Gpio.INPUT, pullUpDown: Gpio.PUD_DOWN, edge: Gpio.RISING_EDGE });
-const {
-    performance
-} = require('perf_hooks');
-const constants = require('./constants.js');
+const Gpio = require("pigpio").Gpio;
+const Decimal = require("decimal.js");
+const speedWire = new Gpio(18, {
+  mode: Gpio.OUTPUT,
+  pullUpDown: Gpio.PUD_DOWN
+});
+const speedInfoWire = new Gpio(22, {
+  mode: Gpio.INPUT,
+  pullUpDown: Gpio.PUD_DOWN,
+  edge: Gpio.RISING_EDGE
+});
+const { performance } = require("perf_hooks");
+const constants = require("./constants.js");
 
 const treadmill = {
-    targetSpeed: new Decimal(0),
-    currentSpeed: new Decimal(0),
-    translateMphToDutyCycle: (mph) => {
-        /*
+  targetSpeed: new Decimal(0),
+  currentSpeed: new Decimal(0),
+  translateMphToDutyCycle: mph => {
+    /*
             THE MIGHTY SPREADSHEET OF TESTING AND DATA!!!
             https://docs.google.com/spreadsheets/d/1iB9PY8yc2AVhMQdQ8LYhLKZ4KrGB5Nou8P9aVCMPZko/edit?usp=sharing
         */
-        /*
+    /*
         IGNORE THIS EYEBALL TESTING, USE SPREADSHEET!!
         ALL OF THIS IS KEPT FOR SENTIMENTAL REASONS ONLY!!!
         At 70000 we get motion, super slow but it blinks normally and at least turns.
@@ -48,139 +53,158 @@ const treadmill = {
         Therefore, duty cycle / mph = 65000
         */
 
-        // Using the above testing, I figured out the floor duty cycle
-        // Duty cycle at 1mph - 1mph increment = duty cycle floor.
-        const dutyCycleFloorNoWalking = new Decimal(139300);
-        const dutyCycleFloorPersonWalking = new Decimal(145150); // 160lb person walking on treadmill raises floor.
-        const dutyCycleFloor = dutyCycleFloorPersonWalking;
-        const mphToDutyCycleMultiplier = new Decimal(58500); // Increments of 1mph
+    // Using the above testing, I figured out the floor duty cycle
+    // Duty cycle at 1mph - 1mph increment = duty cycle floor.
+    const dutyCycleFloorNoWalking = new Decimal(139300);
+    const dutyCycleFloorPersonWalking = new Decimal(145150); // 160lb person walking on treadmill raises floor.
+    const dutyCycleFloor = dutyCycleFloorPersonWalking;
+    const mphToDutyCycleMultiplier = new Decimal(58500); // Increments of 1mph
 
-        let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
+    let dutyCycleForMph = mphToDutyCycleMultiplier.mul(mph).add(dutyCycleFloor);
 
-        if (dutyCycleForMph.lte(dutyCycleFloor)) {
-            return 0; // If we're asked to get the duty cycle for anything below 0.5mph, just return 0.
+    if (dutyCycleForMph.lte(dutyCycleFloor)) {
+      return 0; // If we're asked to get the duty cycle for anything below 0.5mph, just return 0.
+    }
+
+    return dutyCycleForMph.toDP(0).toNumber(); // pigpio is expecting a number with no decimals.
+  },
+  graduallyAchieveTargetSpeed: () => {
+    // Going from 0mph to 6mph takes roughly 11s
+    // https://photos.app.goo.gl/h2WShMgJdqL9JZsq5
+    // Therefore, for every 1mph, it takes 1.833s
+    // So every 1s the mph changes 0.545553737mph
+    // And every 1ms the mph changes 0.000545553737mph
+    // Every 100ms we change speed at 0.0545553737mph
+    // ALSO every 0.1mph takes 0.18333s which is about 183ms
+    const weReachedTarget = treadmill.targetSpeed.eq(treadmill.currentSpeed);
+
+    if (weReachedTarget) {
+      return;
+    }
+
+    // Let's update our speed below:
+    let speedChange = constants.speedChangeEveryInterval;
+    let isIncreasing = treadmill.currentSpeed.lt(treadmill.targetSpeed);
+    let isDecreasing = treadmill.currentSpeed.gt(treadmill.targetSpeed);
+
+    if (treadmill.currentSpeed.lte(constants.maxSpeed)) {
+      if (isIncreasing) {
+        // If we're increasing, cap the currentSpeed at targetSpeed or maxSpeed (prevents overshooting / way too fast)
+        treadmill.currentSpeed = Decimal.min(
+          treadmill.currentSpeed.add(speedChange),
+          treadmill.targetSpeed,
+          constants.maxSpeed
+        );
+      } else if (isDecreasing) {
+        // If we're decreasing, cap the currentSpeed at targetSpeed or 0 (prevents overshooting / negative)
+        treadmill.currentSpeed = Decimal.max(
+          treadmill.currentSpeed.sub(speedChange),
+          treadmill.targetSpeed,
+          0
+        );
+      }
+      const newDutyCycle = treadmill.translateMphToDutyCycle(
+        treadmill.currentSpeed
+      );
+
+      console.log("targ: ", treadmill.targetSpeed.toNumber());
+      console.log("cur: ", treadmill.currentSpeed.toNumber());
+      console.log("duty: ", newDutyCycle);
+
+      treadmill.setSpeedWire(newDutyCycle);
+    }
+  },
+  setSpeed: mph => {
+    const mphUnsafe = Number.parseFloat(mph); // In case someone sent us a string-string...
+    const mphDecimal = new Decimal(mphUnsafe);
+
+    console.log("mphDecimal: ", mphDecimal.toNumber());
+    if (
+      !mphDecimal.isNaN() &&
+      !mphDecimal.isNeg() &&
+      mphDecimal.lte(constants.maxSpeed)
+    ) {
+      console.log("mphDecimal is valid.");
+      const mphRounded = mphDecimal.toDP(1);
+      treadmill.targetSpeed = mphRounded;
+    }
+  },
+  changeSpeed: mph => {
+    // For changing speed relatively.
+    treadmill.setSpeed(treadmill.targetSpeed.add(mph));
+  },
+  startTreadmill: () => {
+    if (treadmill.targetSpeed.isZero()) {
+      treadmill.setSpeed(constants.startSpeed);
+    }
+  },
+  stopTreadmill: () => {
+    treadmill.setSpeed(0);
+  },
+  setSpeedWire: targetDutyCycle => {
+    console.log(`Setting the speed duty cycle to ${targetDutyCycle}`);
+    speedWire.hardwarePwmWrite(constants.speedWireFrequency, targetDutyCycle);
+  },
+  speedWireOff: () => {
+    console.log(`Setting the speed duty cycle to 0`);
+    speedWire.hardwarePwmWrite(constants.speedWireFrequency, 0);
+  },
+  measureTachTiming: () => {
+    let tickAccumulator = 0;
+    let timingPerRotation = [];
+    let tachPerMinInterval;
+    let previousTachTimestamp;
+
+    // From testing:
+    // 1mph ~= 162 ticks in a minute
+    // 1mph ~= 368ms per rotation
+    speedInfoWire.on("interrupt", level => {
+      if (level === 1) {
+        if (
+          treadmill.currentSpeed.eq(treadmill.targetSpeed) &&
+          !treadmill.targetSpeed.isZero()
+        ) {
+          if (!tachPerMinInterval) {
+            tachPerMinInterval = true; // temporarily set this so it doesn't get called again
+            setTimeout(() => {
+              console.log("Measuring tach stats...");
+              tickAccumulator = 0;
+              tachPerMinInterval = setInterval(() => {
+                const averageTimePerRotationInMs =
+                  timingPerRotation.reduce((prev, cur) => prev + cur) /
+                  timingPerRotation.length;
+                console.log("ticks per min:", tickAccumulator * 6);
+                console.log("time per tick (ms):", averageTimePerRotationInMs);
+                tickAccumulator = 0;
+                timingPerRotation = [];
+              }, 10000);
+            }, 2500);
+          }
+
+          tickAccumulator += 1;
+
+          const timeNow = performance.now();
+
+          if (previousTachTimestamp) {
+            timingPerRotation.push(timeNow - previousTachTimestamp);
+          }
+
+          previousTachTimestamp = timeNow;
+        } else {
+          // the target speed has been changed, so reset everything
+          if (tachPerMinInterval) {
+            clearInterval(tachPerMinInterval);
+          }
+
+          tickAccumulator = 0;
+          timingPerRotation = [];
         }
-
-        return dutyCycleForMph.toDP(0).toNumber(); // pigpio is expecting a number with no decimals.
-    },
-    graduallyAchieveTargetSpeed: () => {
-        // Going from 0mph to 6mph takes roughly 11s
-        // https://photos.app.goo.gl/h2WShMgJdqL9JZsq5
-        // Therefore, for every 1mph, it takes 1.833s
-        // So every 1s the mph changes 0.545553737mph
-        // And every 1ms the mph changes 0.000545553737mph
-        // Every 100ms we change speed at 0.0545553737mph
-        // ALSO every 0.1mph takes 0.18333s which is about 183ms
-        const weReachedTarget = treadmill.targetSpeed.eq(treadmill.currentSpeed);
-
-        if (weReachedTarget) {
-            return;
-        }
-
-        // Let's update our speed below:
-        let speedChange = constants.speedChangeEveryInterval;
-        let isIncreasing = treadmill.currentSpeed.lt(treadmill.targetSpeed);
-        let isDecreasing = treadmill.currentSpeed.gt(treadmill.targetSpeed);
-
-        if (treadmill.currentSpeed.lte(constants.maxSpeed)) {
-            if (isIncreasing) {
-                // If we're increasing, cap the currentSpeed at targetSpeed or maxSpeed (prevents overshooting / way too fast)
-                treadmill.currentSpeed = Decimal.min(treadmill.currentSpeed.add(speedChange), treadmill.targetSpeed, constants.maxSpeed);
-            } else if (isDecreasing) {
-                // If we're decreasing, cap the currentSpeed at targetSpeed or 0 (prevents overshooting / negative)
-                treadmill.currentSpeed = Decimal.max(treadmill.currentSpeed.sub(speedChange), treadmill.targetSpeed, 0);
-            }
-            const newDutyCycle = treadmill.translateMphToDutyCycle(treadmill.currentSpeed);
-
-            console.log('targ: ', treadmill.targetSpeed.toNumber());
-            console.log('cur: ', treadmill.currentSpeed.toNumber());
-            console.log('duty: ', newDutyCycle);
-
-            treadmill.setSpeedWire(newDutyCycle);
-        }
-    },
-    setSpeed: (mph) => {
-        const mphUnsafe = Number.parseFloat(mph); // In case someone sent us a string-string...
-        const mphDecimal = new Decimal(mphUnsafe);
-
-        console.log('mphDecimal: ', mphDecimal.toNumber());
-        if (!mphDecimal.isNaN() && !mphDecimal.isNeg() && mphDecimal.lte(constants.maxSpeed)) {
-            console.log('mphDecimal is valid.');
-            const mphRounded = mphDecimal.toDP(1);
-            treadmill.targetSpeed = mphRounded;
-        }
-    },
-    changeSpeed: (mph) => { // For changing speed relatively.
-        treadmill.setSpeed(treadmill.targetSpeed.add(mph));
-    },
-    startTreadmill: () => {
-        if (treadmill.targetSpeed.isZero()) {
-            treadmill.setSpeed(constants.startSpeed);
-        }
-    },
-    stopTreadmill: () => {
-        treadmill.setSpeed(0);
-    },
-    setSpeedWire: (targetDutyCycle) => {
-        console.log(`Setting the speed duty cycle to ${targetDutyCycle}`);
-        speedWire.hardwarePwmWrite(constants.speedWireFrequency, targetDutyCycle);
-    },
-    speedWireOff: () => {
-        console.log(`Setting the speed duty cycle to 0`);
-        speedWire.hardwarePwmWrite(constants.speedWireFrequency, 0);
-    },
-    measureTachTiming: () => {
-        let tickAccumulator = 0;
-        let timingPerRotation = [];
-        let tachPerMinInterval;
-        let previousTachTimestamp;
-
-        // From testing:
-        // 1mph ~= 162 ticks in a minute
-        // 1mph ~= 368ms per rotation
-        speedInfoWire.on('interrupt', (level) => {
-            if (level === 1) {
-                if (treadmill.currentSpeed.eq(treadmill.targetSpeed) && !treadmill.targetSpeed.isZero()) {
-                    if (!tachPerMinInterval) {
-                        tachPerMinInterval = true; // temporarily set this so it doesn't get called again
-                        setTimeout(() => {
-                            console.log("Measuring tach stats...");
-                            tickAccumulator = 0;
-                            tachPerMinInterval = setInterval(() => {
-                                const averageTimePerRotationInMs = timingPerRotation.reduce((prev, cur) => prev + cur) / timingPerRotation.length;
-                                console.log('ticks per min:', tickAccumulator * 6);
-                                console.log('time per tick (ms):', averageTimePerRotationInMs);
-                                tickAccumulator = 0;
-                                timingPerRotation = [];
-                            }, 10000);
-                        }, 2500);
-                    }
-
-                    tickAccumulator += 1;
-
-                    const timeNow = performance.now();
-
-                    if (previousTachTimestamp) {
-                        timingPerRotation.push(timeNow - previousTachTimestamp);
-                    }
-
-                    previousTachTimestamp = timeNow;
-                } else {
-                    // the target speed has been changed, so reset everything
-                    if (tachPerMinInterval) {
-                        clearInterval(tachPerMinInterval);
-                    }
-
-                    tickAccumulator = 0;
-                    timingPerRotation = [];
-                }
-            }
-        });
-
-    },
-    getSpeed: () => {
-        return treadmill.targetSpeed.toString();
-    },
+      }
+    });
+  },
+  getSpeed: () => {
+    return treadmill.targetSpeed.toString();
+  }
 };
 
 module.exports = treadmill;
