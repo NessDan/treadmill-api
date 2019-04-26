@@ -26,5 +26,6 @@
     NOTE TO FUTURE SELF: found this command in a crontab for the old drive:
         `0 0 * * 0 letsencrypt renew`
         If the above doesn't work, this may work?
+TODO: Need step that has Raspberry Pi pull master for API repo every reboot
 1. Start the treadmill API on bootup, `sudo nano /etc/rc.local`
     Add `cd /home/pi/treadmill-api && npm start` before the "exit"
