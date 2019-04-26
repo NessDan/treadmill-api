@@ -1,5 +1,6 @@
 const speedMethods = require('./speed.js');
 const inclineMethods = require('./incline.js');
+const heartRateMethods = require('./heart.js');
 const onError = (err) => {
     // The app has crashed for some reason. Clean up everything and exit.
     console.log("Error!");
@@ -21,6 +22,7 @@ process.on('SIGCONT', onError); // Handle when SSH connection closes that was ru
 const treadmill = {
     ...speedMethods,
     ...inclineMethods,
+    ...heartRateMethods,
     initialize: () => {
         // In case the program crashed and they're still turned on
         // or if they don't initialize to off on `new Gpio`
@@ -29,6 +31,11 @@ const treadmill = {
         // We have no way of knowing what the incline is, so load from a file
         // we saved what the last known incline state was.
         treadmill.setLastKnownIncline();
+
+        // Search, connect, and read HR data
+        treadmill.startHeartRateServices();
+
+        // Keep speed and incline in sync with what the user wants.
         treadmill.updateLogicLoop();
     },
     updateLogicLoopIntervalId: 0,
