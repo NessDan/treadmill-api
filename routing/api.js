@@ -33,7 +33,7 @@ const routing = {
     res.send(treadmillIncline);
   },
   getHeartRate: (_req, res) => {
-    const heartRate = treadmill.getHeartRate();
+    const heartRate = treadmill.getHeartRate().toString();
     res.send(heartRate);
   },
   calibrateIncline: (_req, res) => {
