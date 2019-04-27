@@ -8,7 +8,6 @@ const crypto = require("crypto");
 const key = new Buffer.from("30313233343536373839404142434445", "hex");
 
 const treadmill = {
-  parent: this,
   miBandFound: peripheral => {
     console.log("miband found", peripheral);
     treadmill.connectToDevice(peripheral);
@@ -133,7 +132,7 @@ const treadmill = {
 
       console.log("HR: " + heartRate);
       console.log("THIS", this);
-      treadmill.parent.setHeartRate(heartRate);
+      treadmill.setHeartRate(heartRate);
     });
 
     hrSubscribeChar.subscribe(err => {
