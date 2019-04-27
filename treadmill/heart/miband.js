@@ -106,6 +106,8 @@ const treadmill = {
         char.on("data", data => {
           const heartRate = parseInt(data.toString("hex"), 16);
 
+          console.log("HR: " + heartRate);
+
           treadmill.setHeartRate(heartRate);
         });
 
