@@ -13,6 +13,10 @@ const treadmill = {
     treadmill.startAuthentication(peripheral);
   },
   startAuthentication: peripheral => {
+    peripheral.once("disconnect", () => {
+      console.log("disconnected");
+    });
+
     // TODO: CONNECT SOMETIMES HANGS, NEED TO RETRY
     peripheral.connect(error => {
       if (error) {
