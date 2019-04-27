@@ -3,7 +3,7 @@ const UUID_SERVICE_MIBAND_2 = "fee1";
 const crypto = require("crypto");
 
 // TODO: this is constant for now, but should random and managed per-device
-const key = new Buffer("30313233317432224839404142434445", "hex");
+const key = new Buffer.from("30313233317432224839404142434445", "hex");
 
 const treadmill = {
   miBandFound: peripheral => {
