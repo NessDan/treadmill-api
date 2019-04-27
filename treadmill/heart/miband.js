@@ -62,6 +62,7 @@ const treadmill = {
     authChar.write(new Buffer.from("0308" + encrypedKey, "hex"), true);
   },
   handleAuthResponse: (response, authChar) => {
+    const response2 = new Buffer.from(response);
     const cmd = response.slice(0, 3).toString("hex");
     console.log("cmd: ", cmd);
     if (cmd === "100101") {
@@ -71,7 +72,7 @@ const treadmill = {
     } else if (cmd === "100201") {
       // Req Random Number OK
       console.log("Req Random Number OK");
-      let rdn = response.slice(3);
+      let rdn = response2.slice(3);
       let cipher = crypto
         .createCipheriv("AES-128-ECB", key, "")
         .setAutoPadding(false);
