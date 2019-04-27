@@ -59,8 +59,8 @@ const treadmill = {
     authChar.write(new Buffer.from("0208", "hex"), true);
   },
   sendEncryptedKey: (encrypedKey, authChar) => {
-    const buffToWrite = new Buffer.from("0308" + encrypedKey, "hex");
-    console.log(buffToWrite);
+    const buffToWrite = new Buffer.from(["0308", encrypedKey], "hex");
+    console.log("buffer to write", buffToWrite);
     authChar.write(buffToWrite, true);
   },
   sendPlainKey: (key, authChar) => {
