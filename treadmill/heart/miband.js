@@ -59,10 +59,7 @@ const treadmill = {
     authChar.write(new Buffer.from("0208", "hex"), true);
   },
   sendEncryptedKey: (encrypedKey, authChar) => {
-    authChar.write(
-      new ArrayBuffer(Buffer.from("0308" + encrypedKey, "hex").length),
-      true
-    );
+    authChar.write(new Buffer.from("0108" + encrypedKey, "hex"), true);
   },
   handleAuthResponse: (response, authChar) => {
     const response2 = new Buffer.from(response);
