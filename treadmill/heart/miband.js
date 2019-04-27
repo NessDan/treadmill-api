@@ -150,6 +150,12 @@ const treadmill = {
     } else {
       console.log("Unhandled auth rsp:", response);
     }
+  },
+  setHeartRate: heartRate => {
+    treadmill.heartRate = heartRate;
+  },
+  getHeartRate: () => {
+    return treadmill.heartRate;
   }
 };
 
