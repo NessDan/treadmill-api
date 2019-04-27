@@ -131,12 +131,6 @@ const treadmill = {
 
       console.log("HR: " + heartRate);
 
-      // TODO: Figure out if this is how your supposed to keep conneciton active.
-      if (heartRate) {
-        // We got a heart rate back, send another
-        hrControlPointChar.write(new Buffer.from("150101", "hex"), false);
-      }
-
       treadmill.setHeartRate(heartRate);
     });
 
@@ -146,8 +140,12 @@ const treadmill = {
       }
     });
 
-    // Continuous heart rate
-    hrControlPointChar.write(new Buffer.from("150101", "hex"), false);
+    // "Continuous heart rate"
+    setInterval(() => {
+      // TODO: Figure out how to have continuous heart rate that doesn't just stop.
+
+      hrControlPointChar.write(new Buffer.from("150101", "hex"), false);
+    }, 2000);
   },
   handleAuthResponse: (response, authChar, peripheral) => {
     const response2 = new Buffer.from(response);
