@@ -59,7 +59,9 @@ const treadmill = {
     authChar.write(new Buffer.from("0208", "hex"), true);
   },
   sendEncryptedKey: (encrypedKey, authChar) => {
-    authChar.write(new Buffer.from("0308" + encrypedKey, "hex"), true);
+    const buffToWrite = new Buffer.from("0308" + encrypedKey, "hex");
+    console.log(buffToWrite);
+    authChar.write(buffToWrite, true);
   },
   sendPlainKey: (key, authChar) => {
     authChar.write(new Buffer.from("0108" + key, "hex"), true);
@@ -75,12 +77,16 @@ const treadmill = {
     } else if (cmd === "100201") {
       // Req Random Number OK
       console.log("Req Random Number OK");
+      console.log("response", response);
+      console.log("response2", response2);
       let rdn = response2.slice(3);
-      console.log(rdn);
+      console.log("rdn", rdn);
+      console.log("key", key);
       let cipher = crypto
         .createCipheriv("AES-128-ECB", key, "")
         .setAutoPadding(false);
       let encrypted = Buffer.concat([cipher.update(rdn), cipher.final()]);
+      console.log("enc", encrypted);
       treadmill.sendEncryptedKey(encrypted, authChar);
     } else if (cmd === "100301") {
       console.log("Authenticated");
