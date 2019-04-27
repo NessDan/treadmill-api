@@ -7,7 +7,7 @@ const events = require("events");
 const hrEvent = new events.EventEmitter();
 
 // TODO: this is constant for now, but should random and managed per-device
-const key = new Buffer.from("30313233343536371212634342434445", "hex");
+const key = new Buffer.from("30313233343536373839404142434445", "hex");
 
 const treadmill = {
   miBandFound: peripheral => {
