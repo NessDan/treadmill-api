@@ -13,6 +13,8 @@ const treadmill = {
         console.log(error);
       }
 
+      console.log("connected");
+
       peripheral.discoverSomeServicesAndCharacteristics(
         [UUID_SERVICE_MIBAND_2], // Miband Special Service
         [UUID_BASE("0009")], // Heart Rate characteristic
