@@ -1,21 +1,16 @@
 const noble = require("@abandonware/noble"); // Have to use this fork, main repo doesn't support Node 10
 const miBand = require("./heart/miband.js");
-const events = require("events");
-const hrEvent = new events.EventEmitter();
 
 const HR_SERVICE_UUID = "180d";
 const MIBAND_SERVICE_UUID = "fee0";
 
 const treadmill = {
-  ...miBand,
   heartRate: 0,
   startHeartRateServices: async () => {
     noble.on("discover", peripheral => {
       noble.stopScanning();
       treadmill.foundHeartRateDevice(peripheral);
     });
-
-    hrEvent.on("heartbeat", treadmill.setHeartRate);
 
     noble.startScanning([HR_SERVICE_UUID, MIBAND_SERVICE_UUID]); // HR + Miband services only
   },
@@ -68,7 +63,8 @@ const treadmill = {
   },
   getHeartRate: () => {
     return treadmill.heartRate;
-  }
+  },
+  ...miBand
 };
 
 module.exports = treadmill;
