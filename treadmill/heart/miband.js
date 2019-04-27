@@ -189,6 +189,9 @@ const treadmill = {
   },
   setHeartRate: heartRate => {
     treadmill.heartRate = heartRate;
+  },
+  getHeartRate: () => {
+    return treadmill.heartRate;
   }
 };
 
