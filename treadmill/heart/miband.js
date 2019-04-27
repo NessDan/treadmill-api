@@ -1,5 +1,6 @@
 const UUID_BASE = x => `0000${x}0000351221180009af100700`;
 const UUID_SERVICE_MIBAND_2 = "fee1";
+const crypto = require("crypto");
 
 const treadmill = {
   miBandFound: peripheral => {
@@ -54,6 +55,9 @@ const treadmill = {
   sendAuthHandshake: authChar => {
     authChar.write(new Buffer.from("0208", "hex"), true);
   },
+  sendEncryptedKey: encrypedKey => {
+    authChar.write(new Buffer.from("0308" + encrypedKey, "hex"), true);
+  },
   handleAuthResponse: response => {
     const cmd = response.slice(0, 3).toString("hex");
     console.log("cmd: ", cmd);
@@ -69,7 +73,7 @@ const treadmill = {
         .createCipheriv("aes-128-ecb", this.key, "")
         .setAutoPadding(false);
       let encrypted = Buffer.concat([cipher.update(rdn), cipher.final()]);
-      this.authSendEncKey(encrypted);
+      treadmill.sendEncryptedKey(encrypted);
     } else if (cmd === "100301") {
       console.log("Authenticated");
       debug("Authenticated");
