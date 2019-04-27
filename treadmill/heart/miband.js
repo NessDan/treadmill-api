@@ -41,7 +41,7 @@ const treadmill = {
       console.log("authChar found");
       authChar.on("data", data => {
         console.log("auth responded", data);
-        treadmill.handleAuthResponse(data);
+        treadmill.handleAuthResponse(data, authChar);
       });
 
       authChar.subscribe(err => {
@@ -58,16 +58,16 @@ const treadmill = {
   sendAuthHandshake: authChar => {
     authChar.write(new Buffer.from("0208", "hex"), true);
   },
-  sendEncryptedKey: encrypedKey => {
+  sendEncryptedKey: (encrypedKey, authChar) => {
     authChar.write(new Buffer.from("0308" + encrypedKey, "hex"), true);
   },
-  handleAuthResponse: response => {
+  handleAuthResponse: (response, authChar) => {
     const cmd = response.slice(0, 3).toString("hex");
     console.log("cmd: ", cmd);
     if (cmd === "100101") {
       // Set New Key OK
       console.log("Set New Key OK");
-      this.authReqRandomKey();
+      treadmill.sendAuthHandshake();
     } else if (cmd === "100201") {
       // Req Random Number OK
       console.log("Req Random Number OK");
@@ -76,7 +76,7 @@ const treadmill = {
         .createCipheriv("aes-128-ecb", key, "")
         .setAutoPadding(false);
       let encrypted = Buffer.concat([cipher.update(rdn), cipher.final()]);
-      treadmill.sendEncryptedKey(encrypted);
+      treadmill.sendEncryptedKey(encrypted, authChar);
     } else if (cmd === "100301") {
       console.log("Authenticated");
       this.emit("authenticated");
