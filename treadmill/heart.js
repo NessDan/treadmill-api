@@ -1,6 +1,9 @@
 const noble = require("@abandonware/noble"); // Have to use this fork, main repo doesn't support Node 10
 const miBand = require("heart/miband.js");
 
+const HR_SERVICE_UUID = "180d";
+const MIBAND_SERVICE_UUID = "fee0";
+
 const treadmill = {
   ...miBand,
   heartRate: 0,
@@ -10,7 +13,7 @@ const treadmill = {
       treadmill.foundHeartRateDevice(peripheral);
     });
 
-    noble.startScanning(["180d"]); // HR services only
+    noble.startScanning([HR_SERVICE_UUID, MIBAND_SERVICE_UUID]); // HR + Miband services only
   },
   foundHeartRateDevice: peripheral => {
     if (peripheral.advertisement.localName === "Mi Band 2") {
