@@ -134,7 +134,7 @@ const treadmill = {
       // TODO: Figure out if this is how your supposed to keep conneciton active.
       if (heartRate) {
         // We got a heart rate back, send another
-        hrSubscribeChar.write(new Buffer.from("150101", "hex"), false);
+        hrControlPointChar.write(new Buffer.from("150101", "hex"), false);
       }
 
       treadmill.setHeartRate(heartRate);
