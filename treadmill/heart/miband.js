@@ -10,34 +10,48 @@ const key = new Buffer.from("30313233343536373839404142434445", "hex");
 const treadmill = {
   miBandFound: peripheral => {
     console.log("miband found", peripheral);
-    treadmill.startAuthentication(peripheral);
+    treadmill.connectToDevice(peripheral);
   },
-  startAuthentication: peripheral => {
+  connectToDevice: peripheral => {
     peripheral.once("disconnect", () => {
       console.log("disconnected");
+      connected = false;
     });
 
+    let connected = false;
     // TODO: CONNECT SOMETIMES HANGS, NEED TO RETRY
-    peripheral.connect(error => {
-      if (error) {
-        console.log("error");
-        console.log(error);
-      }
-      console.log("connected");
+    const attemptConnection = () => {
+      peripheral.connect(error => {
+        if (error) {
+          console.log("error");
+          console.log(error);
+        } else {
+          connected = true;
+          console.log("connected");
 
-      peripheral.discoverSomeServicesAndCharacteristics(
-        [UUID_SERVICE_MIBAND_2], // Miband Special Service
-        [UUID_BASE("0009")], // Heart Rate characteristic
-        (error, services, characteristics) => {
-          treadmill.discoveredAuthentication(
-            error,
-            services,
-            characteristics,
-            peripheral
+          peripheral.discoverSomeServicesAndCharacteristics(
+            [UUID_SERVICE_MIBAND_2], // Miband Special Service
+            [UUID_BASE("0009")], // Heart Rate characteristic
+            (error, services, characteristics) => {
+              treadmill.discoveredAuthentication(
+                error,
+                services,
+                characteristics,
+                peripheral
+              );
+            }
           );
         }
-      );
-    });
+      });
+    };
+
+    attemptConnection();
+
+    setInterval(() => {
+      if (!connected) {
+        attemptConnection();
+      }
+    }, 3000);
   },
   discoveredAuthentication: (error, services, characteristics, peripheral) => {
     console.log("discovered services & characteristics");
