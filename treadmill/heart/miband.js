@@ -8,6 +8,7 @@ const crypto = require("crypto");
 const key = new Buffer.from("30313233343536373839404142434445", "hex");
 
 const treadmill = {
+  heartRate: 0,
   miBandFound: peripheral => {
     console.log("miband found", peripheral);
     treadmill.connectToDevice(peripheral);
