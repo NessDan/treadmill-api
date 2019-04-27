@@ -1,4 +1,4 @@
-const UUID_BASE = x => `0000${x}-0000-3512-2118-0009af100700`;
+const UUID_BASE = x => `0000${x}0000351221180009af100700`;
 const UUID_SERVICE_MIBAND_2 = "fee1";
 
 const treadmill = {
@@ -49,7 +49,7 @@ const treadmill = {
     }
   },
   sendAuthHandshake: authChar => {
-    authChar.write(new Buffer.from("0x0208", "hex"), false);
+    authChar.write(new Buffer.from("0x0208", "hex"), true);
   },
   handleAuthResponse: event => {
     if (event.target.uuid === this.char.auth.uuid) {
