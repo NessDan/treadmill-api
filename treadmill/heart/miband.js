@@ -34,6 +34,7 @@ const treadmill = {
     const authChar = characteristics[0];
 
     if (authChar) {
+      console.log("authChar found");
       //   authChar.on("data", handleAuthResponse);
       authChar.on("data", data => {
         console.log("auth responded", data);
@@ -44,12 +45,14 @@ const treadmill = {
           console.log("error subscribing to heart rate characteristic");
         }
 
+        console.log("subscribed");
+
         treadmill.sendAuthHandshake(authChar);
       });
     }
   },
   sendAuthHandshake: authChar => {
-    authChar.write(new Buffer.from("0x0208", "hex"), true);
+    authChar.write(new Buffer.from("0208", "hex"), true);
   },
   handleAuthResponse: event => {
     if (event.target.uuid === this.char.auth.uuid) {
