@@ -2,6 +2,9 @@ const UUID_BASE = x => `0000${x}0000351221180009af100700`;
 const UUID_SERVICE_MIBAND_2 = "fee1";
 const crypto = require("crypto");
 
+// TODO: this is constant for now, but should random and managed per-device
+const key = new Buffer("30313233317432224839404142434445", "hex");
+
 const treadmill = {
   miBandFound: peripheral => {
     console.log("miband found", peripheral);
@@ -70,25 +73,26 @@ const treadmill = {
       console.log("Req Random Number OK");
       let rdn = response.slice(3);
       let cipher = crypto
-        .createCipheriv("aes-128-ecb", this.key, "")
+        .createCipheriv("aes-128-ecb", key, "")
         .setAutoPadding(false);
       let encrypted = Buffer.concat([cipher.update(rdn), cipher.final()]);
       treadmill.sendEncryptedKey(encrypted);
     } else if (cmd === "100301") {
       console.log("Authenticated");
-      debug("Authenticated");
       this.emit("authenticated");
     } else if (cmd === "100104") {
       // Set New Key FAIL
+      console.log("Set New Key FAIL");
       this.emit("error", "Key Sending failed");
     } else if (cmd === "100204") {
       // Req Random Number FAIL
+      console.log("Req Random Number FAIL");
       this.emit("error", "Key Sending failed");
     } else if (cmd === "100304") {
-      debug("Encryption Key Auth Fail, sending new key...");
-      this.authSendNewKey(this.key);
+      console.log("Encryption Key Auth Fail, sending new key...");
+      treadmill.sendEncryptedKey(key);
     } else {
-      debug("Unhandled auth rsp:", response);
+      console.log("Unhandled auth rsp:", response);
     }
   }
 };
