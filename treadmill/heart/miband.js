@@ -96,7 +96,9 @@ const treadmill = {
     console.log(characteristics);
 
     characteristics.forEach(char => {
+      console.log("a char", char);
       if (char.uuid === UUID_CHAR_HR_CONTROL_POINT) {
+        // Continuous heart rate
         char.write(new Buffer.from("150201", "hex"), true);
       } else if (char.uuid === UUID_CHAR_HR_SUBSCRIBE) {
         char.on("data", data => {
