@@ -59,7 +59,10 @@ const treadmill = {
     authChar.write(new Buffer.from("0208", "hex"), true);
   },
   sendEncryptedKey: (encrypedKey, authChar) => {
-    authChar.write(new Buffer.from("0308" + encrypedKey, "hex"), true);
+    authChar.write(
+      new ArrayBuffer(Buffer.from("0308" + encrypedKey, "hex").length),
+      true
+    );
   },
   handleAuthResponse: (response, authChar) => {
     const response2 = new Buffer.from(response);
@@ -73,6 +76,7 @@ const treadmill = {
       // Req Random Number OK
       console.log("Req Random Number OK");
       let rdn = response2.slice(3);
+      console.log(rdn);
       let cipher = crypto
         .createCipheriv("AES-128-ECB", key, "")
         .setAutoPadding(false);
