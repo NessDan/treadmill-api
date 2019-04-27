@@ -51,6 +51,7 @@ const treadmill = {
 
     setInterval(() => {
       if (!connected) {
+        peripheral.disconnect();
         attemptConnection();
       }
     }, 3000);
