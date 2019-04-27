@@ -81,3 +81,5 @@ const treadmill = {
     }
   }
 };
+
+module.exports = treadmill;
