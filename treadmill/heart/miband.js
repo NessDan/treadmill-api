@@ -35,9 +35,10 @@ const treadmill = {
 
     if (authChar) {
       console.log("authChar found");
-      //   authChar.on("data", handleAuthResponse);
+      authChar.on("data", handleAuthResponse);
       authChar.on("data", data => {
         console.log("auth responded", data);
+        handleAuthResponse(data);
       });
 
       authChar.subscribe(err => {
@@ -54,35 +55,37 @@ const treadmill = {
   sendAuthHandshake: authChar => {
     authChar.write(new Buffer.from("0208", "hex"), true);
   },
-  handleAuthResponse: event => {
-    if (event.target.uuid === this.char.auth.uuid) {
-      const cmd = value.slice(0, 3).toString("hex");
-      if (cmd === "100101") {
-        // Set New Key OK
-        this.authReqRandomKey();
-      } else if (cmd === "100201") {
-        // Req Random Number OK
-        let rdn = value.slice(3);
-        let cipher = crypto
-          .createCipheriv("aes-128-ecb", this.key, "")
-          .setAutoPadding(false);
-        let encrypted = Buffer.concat([cipher.update(rdn), cipher.final()]);
-        this.authSendEncKey(encrypted);
-      } else if (cmd === "100301") {
-        debug("Authenticated");
-        this.emit("authenticated");
-      } else if (cmd === "100104") {
-        // Set New Key FAIL
-        this.emit("error", "Key Sending failed");
-      } else if (cmd === "100204") {
-        // Req Random Number FAIL
-        this.emit("error", "Key Sending failed");
-      } else if (cmd === "100304") {
-        debug("Encryption Key Auth Fail, sending new key...");
-        this.authSendNewKey(this.key);
-      } else {
-        debug("Unhandled auth rsp:", value);
-      }
+  handleAuthResponse: response => {
+    const cmd = response.slice(0, 3).toString("hex");
+    console.log("cmd: ", cmd);
+    if (cmd === "100101") {
+      // Set New Key OK
+      console.log("Set New Key OK");
+      this.authReqRandomKey();
+    } else if (cmd === "100201") {
+      // Req Random Number OK
+      console.log("Req Random Number OK");
+      let rdn = response.slice(3);
+      let cipher = crypto
+        .createCipheriv("aes-128-ecb", this.key, "")
+        .setAutoPadding(false);
+      let encrypted = Buffer.concat([cipher.update(rdn), cipher.final()]);
+      this.authSendEncKey(encrypted);
+    } else if (cmd === "100301") {
+      console.log("Authenticated");
+      debug("Authenticated");
+      this.emit("authenticated");
+    } else if (cmd === "100104") {
+      // Set New Key FAIL
+      this.emit("error", "Key Sending failed");
+    } else if (cmd === "100204") {
+      // Req Random Number FAIL
+      this.emit("error", "Key Sending failed");
+    } else if (cmd === "100304") {
+      debug("Encryption Key Auth Fail, sending new key...");
+      this.authSendNewKey(this.key);
+    } else {
+      debug("Unhandled auth rsp:", response);
     }
   }
 };
