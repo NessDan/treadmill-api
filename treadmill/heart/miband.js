@@ -7,12 +7,12 @@ const treadmill = {
     treadmill.startAuthentication(peripheral);
   },
   startAuthentication: peripheral => {
+    // TODO: CONNECT SOMETIMES HANGS, NEED TO RETRY
     peripheral.connect(error => {
       if (error) {
         console.log("error");
         console.log(error);
       }
-
       console.log("connected");
 
       peripheral.discoverSomeServicesAndCharacteristics(
@@ -35,10 +35,9 @@ const treadmill = {
 
     if (authChar) {
       console.log("authChar found");
-      authChar.on("data", handleAuthResponse);
       authChar.on("data", data => {
         console.log("auth responded", data);
-        handleAuthResponse(data);
+        treadmill.handleAuthResponse(data);
       });
 
       authChar.subscribe(err => {
