@@ -3,9 +3,11 @@ const UUID_SERVICE_MIBAND_2 = "fee1";
 const UUID_CHAR_HR_CONTROL_POINT = "2a39";
 const UUID_CHAR_HR_SUBSCRIBE = "2a37";
 const crypto = require("crypto");
+const events = require("events");
+const hrEvent = new events.EventEmitter();
 
 // TODO: this is constant for now, but should random and managed per-device
-const key = new Buffer.from("30313233343536373839404142434445", "hex");
+const key = new Buffer.from("30313233343536371212634342434445", "hex");
 
 const treadmill = {
   miBandFound: peripheral => {
@@ -132,7 +134,7 @@ const treadmill = {
 
       console.log("HR: " + heartRate);
       console.log("THIS", this);
-      treadmill.setHeartRate(heartRate);
+      hrEvent.emit("heartbeat", heartRate);
     });
 
     hrSubscribeChar.subscribe(err => {
