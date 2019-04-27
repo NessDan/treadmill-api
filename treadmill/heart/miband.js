@@ -98,30 +98,42 @@ const treadmill = {
 
     console.log(services);
     console.log(characteristics);
+    let hrControlPointChar;
+    let hrSubscribeChar;
 
     characteristics.forEach(char => {
       console.log("a char", char);
       if (char.uuid === UUID_CHAR_HR_CONTROL_POINT) {
         console.log("control point found!");
-        // Continuous heart rate
-        char.write(new Buffer.from("150101", "hex"), false);
+        hrControlPointChar = char;
       } else if (char.uuid === UUID_CHAR_HR_SUBSCRIBE) {
         console.log("subscribtion char found!");
-        char.on("data", data => {
-          const heartRate = parseInt(data.toString("hex"), 16);
-
-          console.log("HR: " + heartRate);
-
-          treadmill.setHeartRate(heartRate);
-        });
-
-        char.subscribe(err => {
-          if (err) {
-            console.log("error subscribing to heart rate characteristic");
-          }
-        });
+        hrSubscribeChar = char;
       }
     });
+
+    hrSubscribeChar.on("data", data => {
+      const heartRate = parseInt(data.toString("hex"), 16);
+
+      console.log("HR: " + heartRate);
+
+      // TODO: Figure out if this is how your supposed to keep conneciton active.
+      if (heartRate) {
+        // We got a heart rate back, send another
+        hrSubscribeChar.write(new Buffer.from("150101", "hex"), false);
+      }
+
+      treadmill.setHeartRate(heartRate);
+    });
+
+    hrSubscribeChar.subscribe(err => {
+      if (err) {
+        console.log("error subscribing to heart rate characteristic");
+      }
+    });
+
+    // Continuous heart rate
+    hrControlPointChar.write(new Buffer.from("150101", "hex"), false);
   },
   handleAuthResponse: (response, authChar, peripheral) => {
     const response2 = new Buffer.from(response);
