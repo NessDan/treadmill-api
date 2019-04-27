@@ -61,6 +61,9 @@ const treadmill = {
   sendEncryptedKey: (encrypedKey, authChar) => {
     authChar.write(new Buffer.from("0308" + encrypedKey, "hex"), true);
   },
+  sendPlainKey: (key, authChar) => {
+    authChar.write(new Buffer.from("0108" + key, "hex"), true);
+  },
   handleAuthResponse: (response, authChar) => {
     const response2 = new Buffer.from(response);
     const cmd = response.slice(0, 3).toString("hex");
@@ -92,7 +95,7 @@ const treadmill = {
       this.emit("error", "Key Sending failed");
     } else if (cmd === "100304") {
       console.log("Encryption Key Auth Fail, sending new key...");
-      treadmill.sendEncryptedKey(key);
+      treadmill.sendEncryptedKey(key, authChar);
     } else {
       console.log("Unhandled auth rsp:", response);
     }
