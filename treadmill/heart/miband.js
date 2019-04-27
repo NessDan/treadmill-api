@@ -1,9 +1,9 @@
 const UUID_BASE = x => `0000${x}-0000-3512-2118-0009af100700`;
-const UUID_SERVICE_MIBAND_2 = 0xfee1;
+const UUID_SERVICE_MIBAND_2 = "fee0";
 
 const treadmill = {
   miBandFound: peripheral => {
-    console.log(peripheral);
+    console.log("miband found", peripheral);
     treadmill.startAuthentication(peripheral);
   },
   startAuthentication: peripheral => {
