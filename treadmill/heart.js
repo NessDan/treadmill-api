@@ -16,7 +16,7 @@ const treadmill = {
     noble.startScanning([HR_SERVICE_UUID, MIBAND_SERVICE_UUID]); // HR + Miband services only
   },
   foundHeartRateDevice: peripheral => {
-    if (peripheral.advertisement.localName === "Mi Band 2") {
+    if (peripheral.advertisement.localName === "MI Band 2") {
       treadmill.miBandFound(peripheral);
     } else {
       // Generic HR found.
