@@ -131,7 +131,7 @@ const treadmill = {
 
       console.log("HR: " + heartRate);
 
-      treadmill.setHeartRate(heartRate);
+      this.setHeartRate(heartRate);
     });
 
     hrSubscribeChar.subscribe(err => {
@@ -184,12 +184,6 @@ const treadmill = {
     } else {
       console.log("Unhandled auth rsp:", response);
     }
-  },
-  setHeartRate: heartRate => {
-    treadmill.heartRate = heartRate;
-  },
-  getHeartRate: () => {
-    return treadmill.heartRate;
   }
 };
 
