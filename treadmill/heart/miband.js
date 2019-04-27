@@ -100,7 +100,7 @@ const treadmill = {
       if (char.uuid === UUID_CHAR_HR_CONTROL_POINT) {
         console.log("control point found!");
         // Continuous heart rate
-        char.write(new Buffer.from("150101", "hex"), true);
+        char.write(new Buffer.from("150101", "hex"), false);
       } else if (char.uuid === UUID_CHAR_HR_SUBSCRIBE) {
         console.log("subscribtion char found!");
         char.on("data", data => {
