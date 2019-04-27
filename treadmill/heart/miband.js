@@ -79,9 +79,9 @@ const treadmill = {
     authChar.write(new Buffer.from("0108" + key, "hex"), true);
   },
   listenToHeartRate: peripheral => {
-    peripheral.discoverAllServicesAndCharacteristics(
+    peripheral.discoverSomeServicesAndCharacteristics(
       ["180d"], // Heart Rate service
-      [UUID_CHAR_HR_CONTROL_POINT, UUID_CHAR_HR_SUBSCRIBE], // Heart Rate characteristic
+      [UUID_CHAR_HR_CONTROL_POINT, UUID_CHAR_HR_SUBSCRIBE], // Heart Rate characteristics
       treadmill.discoveredHeartRateCharacteristics
     );
   },
