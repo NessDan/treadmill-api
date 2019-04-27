@@ -3,7 +3,7 @@ const UUID_SERVICE_MIBAND_2 = "fee1";
 const crypto = require("crypto");
 
 // TODO: this is constant for now, but should random and managed per-device
-const key = new Buffer.from("30313233317432224839404142434445", "hex");
+const key = new Buffer.from("30313233343536373839404142434445", "hex");
 
 const treadmill = {
   miBandFound: peripheral => {
@@ -73,7 +73,7 @@ const treadmill = {
       console.log("Req Random Number OK");
       let rdn = response.slice(3);
       let cipher = crypto
-        .createCipheriv("aes-128-ecb", key, "")
+        .createCipheriv("AES-128-ECB", key, "")
         .setAutoPadding(false);
       let encrypted = Buffer.concat([cipher.update(rdn), cipher.final()]);
       treadmill.sendEncryptedKey(encrypted, authChar);
