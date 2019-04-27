@@ -1,5 +1,7 @@
 const UUID_BASE = x => `0000${x}0000351221180009af100700`;
 const UUID_SERVICE_MIBAND_2 = "fee1";
+const UUID_CHAR_HR_CONTROL_POINT = "2a39";
+const UUID_CHAR_HR_SUBSCRIBE = "2a37";
 const crypto = require("crypto");
 
 // TODO: this is constant for now, but should random and managed per-device
@@ -77,9 +79,9 @@ const treadmill = {
     authChar.write(new Buffer.from("0108" + key, "hex"), true);
   },
   listenToHeartRate: peripheral => {
-    peripheral.discoverSomeServicesAndCharacteristics(
+    peripheral.discoverAllServicesAndCharacteristics(
       ["180d"], // Heart Rate service
-      ["2a37"], // Heart Rate characteristic
+      [UUID_CHAR_HR_CONTROL_POINT, UUID_CHAR_HR_SUBSCRIBE], // Heart Rate characteristic
       treadmill.discoveredHeartRateCharacteristics
     );
   },
@@ -92,23 +94,24 @@ const treadmill = {
 
     console.log(services);
     console.log(characteristics);
-    const hrChar = characteristics[0];
 
-    if (hrChar) {
-      hrChar.on("data", data => {
-        const heartRate = parseInt(data.toString("hex"), 16);
+    characteristics.forEach(char => {
+      if (char.uuid === UUID_CHAR_HR_CONTROL_POINT) {
+        char.write(new Buffer.from("150201", "hex"), true);
+      } else if (char.uuid === UUID_CHAR_HR_SUBSCRIBE) {
+        char.on("data", data => {
+          const heartRate = parseInt(data.toString("hex"), 16);
 
-        treadmill.setHeartRate(heartRate);
-      });
+          treadmill.setHeartRate(heartRate);
+        });
 
-      hrChar.subscribe(err => {
-        if (err) {
-          console.log("error subscribing to heart rate characteristic");
-        }
-      });
-
-      hrChar.write(new Buffer.from("150201", "hex"), true);
-    }
+        char.subscribe(err => {
+          if (err) {
+            console.log("error subscribing to heart rate characteristic");
+          }
+        });
+      }
+    });
   },
   handleAuthResponse: (response, authChar, peripheral) => {
     const response2 = new Buffer.from(response);
