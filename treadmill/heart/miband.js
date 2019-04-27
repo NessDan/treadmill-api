@@ -14,7 +14,7 @@ const treadmill = {
     treadmill.connectToDevice(peripheral);
   },
   connectToDevice: peripheral => {
-    peripheral.once("disconnect", () => {
+    peripheral.on("disconnect", () => {
       console.log("disconnected");
       connected = false;
     });
