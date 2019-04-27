@@ -3,6 +3,7 @@ const UUID_SERVICE_MIBAND_2 = 0xfee1;
 
 const treadmill = {
   miBandFound: peripheral => {
+    console.log(peripheral);
     treadmill.startAuthentication(peripheral);
   },
   startAuthentication: peripheral => {
