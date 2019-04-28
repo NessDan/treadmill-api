@@ -23,7 +23,7 @@ const treadmill = {
     treadmill.connectToDevice(peripheral);
 
     setInterval(() => {
-      if ((peripheral.state = "disconnected")) {
+      if (peripheral.state === "disconnected") {
         peripheral.disconnect();
       }
     }, 5000);
