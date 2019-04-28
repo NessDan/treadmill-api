@@ -15,8 +15,7 @@ const treadmill = {
   },
   maintainConnection: peripheral => {
     peripheral.on("disconnect", () => {
-      console.log("disconnected, retrying connection");
-      treadmill.connectToDevice(peripheral);
+      console.log("disconnected");
     });
 
     // TODO: CONNECT SOMETIMES HANGS, NEED TO RETRY PROPERLY
@@ -25,6 +24,8 @@ const treadmill = {
     setInterval(() => {
       if (peripheral.state === "disconnected") {
         peripheral.disconnect();
+        console.log("trying new connection");
+        treadmill.connectToDevice(peripheral);
       }
     }, 5000);
   },
