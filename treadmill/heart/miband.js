@@ -126,25 +126,29 @@ const treadmill = {
     });
     console.log("THIS2", this);
 
-    hrSubscribeChar.on("data", data => {
-      const heartRate = parseInt(data.toString("hex"), 16);
+    if (hrSubscribeChar) {
+      hrSubscribeChar.on("data", data => {
+        const heartRate = parseInt(data.toString("hex"), 16);
 
-      console.log("HR: " + heartRate);
-      console.log("THIS", this);
-      treadmill.setHeartRate(heartRate);
-    });
+        console.log("HR: " + heartRate);
+        console.log("THIS", this);
+        treadmill.setHeartRate(heartRate);
+      });
 
-    hrSubscribeChar.subscribe(err => {
-      if (err) {
-        console.log("error subscribing to heart rate characteristic");
-      }
-    });
+      hrSubscribeChar.subscribe(err => {
+        if (err) {
+          console.log("error subscribing to heart rate characteristic");
+        }
+      });
+    }
 
     // "Continuous heart rate"
     setInterval(() => {
       // TODO: Figure out how to have continuous heart rate that doesn't just stop.
 
-      hrControlPointChar.write(new Buffer.from("150101", "hex"), false);
+      if (hrControlPointChar) {
+        hrControlPointChar.write(new Buffer.from("150101", "hex"), false);
+      }
     }, 2000);
   },
   handleAuthResponse: (response, authChar, peripheral) => {
