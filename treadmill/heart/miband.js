@@ -143,11 +143,16 @@ const treadmill = {
     }
 
     // "Continuous heart rate"
-    setInterval(() => {
+    const continuousInterval = setInterval(() => {
       // TODO: Figure out how to have continuous heart rate that doesn't just stop.
 
       if (hrControlPointChar) {
-        hrControlPointChar.write(new Buffer.from("150101", "hex"), false);
+        try {
+          hrControlPointChar.write(new Buffer.from("150101", "hex"), false);
+        } catch (e) {
+          console.log(e);
+          clearInterval(continuousInterval);
+        }
       }
     }, 2000);
   },
