@@ -11,49 +11,46 @@ const treadmill = {
   heartRate: 0,
   miBandFound: peripheral => {
     console.log("miband found", peripheral);
-    treadmill.connectToDevice(peripheral);
+    treadmill.maintainConnection(peripheral);
   },
-  connectToDevice: peripheral => {
+  maintainConnection: peripheral => {
     peripheral.on("disconnect", () => {
-      console.log("disconnected");
-      connected = false;
+      console.log("disconnected, retrying connection");
+      treadmill.connectToDevice(peripheral);
     });
 
-    let connected = false;
-    // TODO: CONNECT SOMETIMES HANGS, NEED TO RETRY
-    const attemptConnection = () => {
-      peripheral.connect(error => {
-        if (error) {
-          console.log("error");
-          console.log(error);
-        } else {
-          connected = true;
-          console.log("connected");
-
-          peripheral.discoverSomeServicesAndCharacteristics(
-            [UUID_SERVICE_MIBAND_2], // Miband Special Service
-            [UUID_BASE("0009")], // Heart Rate characteristic
-            (error, services, characteristics) => {
-              treadmill.discoveredAuthentication(
-                error,
-                services,
-                characteristics,
-                peripheral
-              );
-            }
-          );
-        }
-      });
-    };
-
-    attemptConnection();
+    // TODO: CONNECT SOMETIMES HANGS, NEED TO RETRY PROPERLY
+    treadmill.connectToDevice(peripheral);
 
     setInterval(() => {
-      if (!connected) {
+      if ((peripheral.state = "disconnected")) {
         peripheral.disconnect();
-        attemptConnection();
       }
-    }, 3000);
+    }, 5000);
+  },
+  connectToDevice: peripheral => {
+    peripheral.connect(error => {
+      if (error) {
+        console.log("error");
+        console.log(error);
+      } else {
+        connected = true;
+        console.log("connected");
+
+        peripheral.discoverSomeServicesAndCharacteristics(
+          [UUID_SERVICE_MIBAND_2], // Miband Special Service
+          [UUID_BASE("0009")], // Heart Rate characteristic
+          (error, services, characteristics) => {
+            treadmill.discoveredAuthentication(
+              error,
+              services,
+              characteristics,
+              peripheral
+            );
+          }
+        );
+      }
+    });
   },
   discoveredAuthentication: (error, services, characteristics, peripheral) => {
     console.log("discovered services & characteristics");
