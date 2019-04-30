@@ -9,27 +9,27 @@ const key = new Buffer.from("30313233343536373839404142434445", "hex");
 
 const treadmill = {
   heartRate: 0,
-  miBandFound: peripheral => {
+  miBandFound: function(peripheral) {
     console.log("miband found", peripheral);
-    treadmill.maintainConnection(peripheral);
+    this.maintainConnection(peripheral);
   },
-  maintainConnection: peripheral => {
+  maintainConnection: function(peripheral) {
     peripheral.on("disconnect", () => {
       console.log("disconnected");
     });
 
     // TODO: CONNECT SOMETIMES HANGS, NEED TO RETRY PROPERLY
-    treadmill.connectToDevice(peripheral);
+    this.connectToDevice(peripheral);
 
     setInterval(() => {
       if (peripheral.state === "disconnected") {
         peripheral.disconnect();
         console.log("trying new connection");
-        treadmill.connectToDevice(peripheral);
+        this.connectToDevice(peripheral);
       }
     }, 5000);
   },
-  connectToDevice: peripheral => {
+  connectToDevice: function(peripheral) {
     peripheral.connect(error => {
       if (error) {
         console.log("error");
@@ -42,7 +42,7 @@ const treadmill = {
           [UUID_SERVICE_MIBAND_2], // Miband Special Service
           [UUID_BASE("0009")], // Heart Rate characteristic
           (error, services, characteristics) => {
-            treadmill.discoveredAuthentication(
+            this.discoveredAuthentication(
               error,
               services,
               characteristics,
@@ -53,7 +53,12 @@ const treadmill = {
       }
     });
   },
-  discoveredAuthentication: (error, services, characteristics, peripheral) => {
+  discoveredAuthentication: function(
+    error,
+    services,
+    characteristics,
+    peripheral
+  ) {
     console.log("discovered services & characteristics");
 
     if (error) {
@@ -68,7 +73,7 @@ const treadmill = {
       console.log("authChar found");
       authChar.on("data", data => {
         console.log("auth responded", data);
-        treadmill.handleAuthResponse(data, authChar, peripheral);
+        this.handleAuthResponse(data, authChar, peripheral);
       });
 
       authChar.subscribe(err => {
@@ -78,14 +83,14 @@ const treadmill = {
 
         console.log("subscribed");
 
-        treadmill.sendAuthHandshake(authChar);
+        this.sendAuthHandshake(authChar);
       });
     }
   },
-  sendAuthHandshake: authChar => {
+  sendAuthHandshake: function(authChar) {
     authChar.write(new Buffer.from("0208", "hex"), true);
   },
-  sendEncryptedKey: (encrypedKey, authChar) => {
+  sendEncryptedKey: function(encrypedKey, authChar) {
     const buffToWrite = new Buffer.from(
       "0308" + encrypedKey.toString("hex"),
       "hex"
@@ -93,17 +98,21 @@ const treadmill = {
     console.log("buffer to write", buffToWrite);
     authChar.write(buffToWrite, true);
   },
-  sendPlainKey: (key, authChar) => {
+  sendPlainKey: function(key, authChar) {
     authChar.write(new Buffer.from("0108" + key, "hex"), true);
   },
-  listenToHeartRate: peripheral => {
+  listenToHeartRate: function(peripheral) {
     peripheral.discoverSomeServicesAndCharacteristics(
       ["180d"], // Heart Rate service
       [UUID_CHAR_HR_CONTROL_POINT, UUID_CHAR_HR_SUBSCRIBE], // Heart Rate characteristics
-      treadmill.discoveredHeartRateCharacteristics
+      this.discoveredHeartRateCharacteristics
     );
   },
-  discoveredHeartRateCharacteristics: (error, services, characteristics) => {
+  discoveredHeartRateCharacteristics: function(
+    error,
+    services,
+    characteristics
+  ) {
     console.log("discovered HR services & characteristics");
 
     if (error) {
@@ -133,7 +142,7 @@ const treadmill = {
 
         console.log("HR: " + heartRate);
         console.log("THIS", this);
-        treadmill.setHeartRate(heartRate);
+        this.setHeartRate(heartRate);
       });
 
       hrSubscribeChar.subscribe(err => {
@@ -157,14 +166,14 @@ const treadmill = {
       }
     }, 2000);
   },
-  handleAuthResponse: (response, authChar, peripheral) => {
+  handleAuthResponse: function(response, authChar, peripheral) {
     const response2 = new Buffer.from(response);
     const cmd = response.slice(0, 3).toString("hex");
     console.log("cmd: ", cmd);
     if (cmd === "100101") {
       // Set New Key OK
       console.log("Set New Key OK");
-      treadmill.sendAuthHandshake();
+      this.sendAuthHandshake();
     } else if (cmd === "100201") {
       // Req Random Number OK
       console.log("Req Random Number OK");
@@ -178,10 +187,10 @@ const treadmill = {
         .setAutoPadding(false);
       let encrypted = Buffer.concat([cipher.update(rdn), cipher.final()]);
       console.log("enc", encrypted);
-      treadmill.sendEncryptedKey(encrypted, authChar);
+      this.sendEncryptedKey(encrypted, authChar);
     } else if (cmd === "100301") {
       console.log("Authenticated");
-      treadmill.listenToHeartRate(peripheral);
+      this.listenToHeartRate(peripheral);
     } else if (cmd === "100104") {
       // Set New Key FAIL
       console.log("Set New Key FAIL");
@@ -190,17 +199,11 @@ const treadmill = {
       console.log("Req Random Number FAIL");
     } else if (cmd === "100304") {
       console.log("Encryption Key Auth Fail, sending new key...");
-      treadmill.sendEncryptedKey(key, authChar);
+      this.sendEncryptedKey(key, authChar);
     } else {
       console.log("Unhandled auth rsp:", response);
     }
   },
-  setHeartRate: heartRate => {
-    treadmill.heartRate = heartRate;
-  },
-  getHeartRate: () => {
-    return treadmill.heartRate;
-  }
 };
 
 module.exports = treadmill;

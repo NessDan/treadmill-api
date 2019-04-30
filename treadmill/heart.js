@@ -16,7 +16,7 @@ const treadmill = {
   },
   foundHeartRateDevice: function(peripheral) {
     if (peripheral.advertisement.localName === "MI Band 2") {
-      treadmill.miBandFound(peripheral);
+      this.miBandFound(peripheral);
     } else {
       // Generic HR found.
       peripheral.connect(error => {
@@ -28,7 +28,7 @@ const treadmill = {
         peripheral.discoverSomeServicesAndCharacteristics(
           ["180d"], // Heart Rate service
           ["2a37"], // Heart Rate characteristic
-          treadmill.discoveredServicesAndCharacteristics
+          this.discoveredServicesAndCharacteristics
         );
       });
     }
