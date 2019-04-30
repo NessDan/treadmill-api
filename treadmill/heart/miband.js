@@ -134,14 +134,14 @@ const treadmill = {
         hrSubscribeChar = char;
       }
     });
-    console.log("THIS2", this);
+    // console.log("THIS2", this);
 
     if (hrSubscribeChar) {
       hrSubscribeChar.on("data", data => {
         const heartRate = parseInt(data.toString("hex"), 16);
 
         console.log("HR: " + heartRate);
-        console.log("THIS", this);
+        // console.log("THIS", this);
         this.setHeartRate(heartRate);
       });
 
