@@ -105,7 +105,7 @@ const treadmill = {
     peripheral.discoverSomeServicesAndCharacteristics(
       ["180d"], // Heart Rate service
       [UUID_CHAR_HR_CONTROL_POINT, UUID_CHAR_HR_SUBSCRIBE], // Heart Rate characteristics
-      this.discoveredHeartRateCharacteristics
+      this.discoveredHeartRateCharacteristics.bind(this)
     );
   },
   discoveredHeartRateCharacteristics: function(
@@ -137,7 +137,7 @@ const treadmill = {
     console.log("THIS2", this);
 
     if (hrSubscribeChar) {
-      hrSubscribeChar.on("data", function(data) {
+      hrSubscribeChar.on("data", data => {
         const heartRate = parseInt(data.toString("hex"), 16);
 
         console.log("HR: " + heartRate);
