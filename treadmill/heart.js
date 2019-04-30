@@ -6,15 +6,15 @@ const MIBAND_SERVICE_UUID = "fee0";
 
 const treadmill = {
   heartRate: 0,
-  startHeartRateServices: async () => {
+  startHeartRateServices: async function() {
     noble.on("discover", peripheral => {
       noble.stopScanning();
-      treadmill.foundHeartRateDevice(peripheral);
+      this.foundHeartRateDevice(peripheral);
     });
 
     noble.startScanning([HR_SERVICE_UUID, MIBAND_SERVICE_UUID]); // HR + Miband services only
   },
-  foundHeartRateDevice: peripheral => {
+  foundHeartRateDevice: function(peripheral) {
     if (peripheral.advertisement.localName === "MI Band 2") {
       treadmill.miBandFound(peripheral);
     } else {
@@ -33,7 +33,11 @@ const treadmill = {
       });
     }
   },
-  discoveredServicesAndCharacteristics: (error, services, characteristics) => {
+  discoveredServicesAndCharacteristics: function(
+    error,
+    services,
+    characteristics
+  ) {
     console.log("discovered services & characteristics");
 
     if (error) {
@@ -48,7 +52,7 @@ const treadmill = {
       hrChar.on("data", data => {
         const heartRate = parseInt(data.toString("hex"), 16);
 
-        treadmill.setHeartRate(heartRate);
+        this.setHeartRate(heartRate);
       });
 
       hrChar.subscribe(err => {
@@ -58,11 +62,11 @@ const treadmill = {
       });
     }
   },
-  setHeartRate: heartRate => {
-    treadmill.heartRate = heartRate;
+  setHeartRate: function(heartRate) {
+    this.heartRate = heartRate;
   },
-  getHeartRate: () => {
-    return treadmill.heartRate;
+  getHeartRate: function() {
+    return this.heartRate;
   },
   ...miBand
 };
