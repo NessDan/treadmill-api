@@ -5,6 +5,7 @@ const HR_SERVICE_UUID = "180d";
 const MIBAND_SERVICE_UUID = "fee0";
 
 const treadmill = {
+  ...miBand,
   heartRate: 0,
   startHeartRateServices: async function() {
     noble.on("discover", peripheral => {
@@ -67,8 +68,7 @@ const treadmill = {
   },
   getHeartRate: function() {
     return this.heartRate;
-  },
-  ...miBand
+  }
 };
 
 module.exports = treadmill;
