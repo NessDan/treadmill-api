@@ -137,7 +137,7 @@ const treadmill = {
     console.log("THIS2", this);
 
     if (hrSubscribeChar) {
-      hrSubscribeChar.on("data", data => {
+      hrSubscribeChar.on("data", function(data) {
         const heartRate = parseInt(data.toString("hex"), 16);
 
         console.log("HR: " + heartRate);
@@ -203,7 +203,7 @@ const treadmill = {
     } else {
       console.log("Unhandled auth rsp:", response);
     }
-  },
+  }
 };
 
 module.exports = treadmill;
