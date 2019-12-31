@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "sudo node index.js 2>&1 | tee -i -a output.log",
+    "start": "sudo node index.js",
+    "log-start": "sudo node index.js 2>&1 | tee -i -a output.log",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
