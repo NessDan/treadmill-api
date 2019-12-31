@@ -24,47 +24,47 @@ const treadmill = {
   isInclining: false,
   isDeclining: false,
   isCalibrating: false,
-  graduallyAchieveTargetIncline: () => {
-    if (treadmill.isCalibrating) {
+  graduallyAchieveTargetIncline: function() {
+    if (this.isCalibrating) {
       return;
     }
 
     // When we've reached the target after it being set:
     if (
-      treadmill.targetGrade.eq(treadmill.currentGrade) &&
-      (treadmill.isInclining || treadmill.isDeclining)
+      this.targetGrade.eq(this.currentGrade) &&
+      (this.isInclining || this.isDeclining)
     ) {
       console.log("Incline position reached");
-      treadmill.inclineWireOff();
-      treadmill.declineWireOff();
-      treadmill.saveToInclineFile(treadmill.currentGrade);
-    } else if (treadmill.currentGrade.lt(treadmill.targetGrade)) {
-      if (!treadmill.isInclining) {
-        treadmill.inclineWireOn();
+      this.inclineWireOff();
+      this.declineWireOff();
+      this.saveToInclineFile(this.currentGrade);
+    } else if (this.currentGrade.lt(this.targetGrade)) {
+      if (!this.isInclining) {
+        this.inclineWireOn();
       }
 
       // currentGrade should never be greater than targetGrade or max grade going up.
-      treadmill.currentGrade = Decimal.min(
-        treadmill.currentGrade.add(constants.inclineAmountEveryInterval),
-        treadmill.targetGrade,
+      this.currentGrade = Decimal.min(
+        this.currentGrade.add(constants.inclineAmountEveryInterval),
+        this.targetGrade,
         constants.maximumGrade
       );
-    } else if (treadmill.currentGrade.gt(treadmill.targetGrade)) {
+    } else if (this.currentGrade.gt(this.targetGrade)) {
       // isDeclining could do digitalRead every time or be a saved value.
       // https://www.npmjs.com/package/pigpio#performance
-      if (!treadmill.isDeclining) {
-        treadmill.declineWireOn();
+      if (!this.isDeclining) {
+        this.declineWireOn();
       }
 
       // currentGrade should never be lower than targetGrade or 0 going down.
-      treadmill.currentGrade = Decimal.max(
-        treadmill.currentGrade.sub(constants.declineAmountEveryInterval),
-        treadmill.targetGrade,
+      this.currentGrade = Decimal.max(
+        this.currentGrade.sub(constants.declineAmountEveryInterval),
+        this.targetGrade,
         0
       );
     }
   },
-  setIncline: (grade, isTarget) => {
+  setIncline: function(grade, isTarget) {
     const unsafeIncline = Number.parseFloat(grade); // In case someone sent us a string...
     const incline = new Decimal(unsafeIncline);
 
@@ -74,108 +74,108 @@ const treadmill = {
         // If we're not setting current & target
         // and we're told to go to 0, just calibrate incline
         // Gets the same effect and puts us back at zero.
-        treadmill.calibrateIncline();
+        this.calibrateIncline();
       } else {
         const gradeRounded = incline.toDP(1);
-        treadmill.targetGrade = gradeRounded;
-        if (isTarget) treadmill.currentGrade = gradeRounded;
+        this.targetGrade = gradeRounded;
+        if (isTarget) this.currentGrade = gradeRounded;
       }
     }
   },
-  changeIncline: grade => {
-    treadmill.setIncline(treadmill.targetGrade.add(grade));
+  changeIncline: function(grade) {
+    this.setIncline(this.targetGrade.add(grade));
   },
-  getIncline: () => {
-    return treadmill.targetGrade.toString();
+  getIncline: function() {
+    return this.targetGrade.toString();
   },
-  inclineWireOn: () => {
+  inclineWireOn: function() {
     console.log(
-      `Flipping the incline wire on. Current: ${
-        treadmill.currentGrade
-      } Target: ${treadmill.targetGrade}`
+      `Flipping the incline wire on. Current: ${this.currentGrade} Target: ${
+        this.targetGrade
+      }`
     );
-    treadmill.declineWireOff();
+    this.declineWireOff();
     inclineWire.digitalWrite(1);
 
     // isInclining statically set to save from calling digitalRead too many times.
     // https://www.npmjs.com/package/pigpio#performance
-    treadmill.isInclining = true;
+    this.isInclining = true;
     // We can no longer guarantee what the incline is once this starts so we save "bad".
     // It's up to our "reach target incline" function to re-save it once it confirms the incline.
-    treadmill.saveToInclineFile("-1");
+    this.saveToInclineFile("-1");
     // As we start inclining, this will make sure that when we hit a wall,
     // the incline wire will turn off and we'll mark the current position.
-    // treadmill.watchForInclineLimitReached();
+    // this.watchForInclineLimitReached();
   },
-  inclineWireOff: () => {
+  inclineWireOff: function() {
     console.log(
-      `Flipping the incline wire off. Current: ${
-        treadmill.currentGrade
-      } Target: ${treadmill.targetGrade}`
+      `Flipping the incline wire off. Current: ${this.currentGrade} Target: ${
+        this.targetGrade
+      }`
     );
     inclineWire.digitalWrite(0);
-    treadmill.isInclining = false;
+    this.isInclining = false;
   },
-  inclineWireToggle: () => {
+  inclineWireToggle: function() {
     console.log(`Toggling the incline wire`);
-    if (treadmill.isInclining) {
-      treadmill.inclineWireOff();
+    if (this.isInclining) {
+      this.inclineWireOff();
     } else {
-      treadmill.inclineWireOn();
+      this.inclineWireOn();
     }
   },
-  declineWireOn: () => {
+  declineWireOn: function() {
     console.log(
-      `Flipping the decline wire on. Current: ${
-        treadmill.currentGrade
-      } Target: ${treadmill.targetGrade}`
+      `Flipping the decline wire on. Current: ${this.currentGrade} Target: ${
+        this.targetGrade
+      }`
     );
-    treadmill.inclineWireOff();
+    this.inclineWireOff();
     declineWire.digitalWrite(1);
     // isDeclining statically set to save from calling digitalRead too many times.
     // https://www.npmjs.com/package/pigpio#performance
-    treadmill.isDeclining = true;
+    this.isDeclining = true;
     // We can no longer guarantee what the incline is once this starts so we save "bad".
     // It's up to our "reach target incline" function to re-save it once it confirms the incline.
-    treadmill.saveToInclineFile("-1");
+    this.saveToInclineFile("-1");
     // As we start inclining, this will make sure that when we hit a wall,
     // the incline wire will turn off and we'll mark the current position.
-    treadmill.watchForInclineLimitReached();
+    this.watchForInclineLimitReached();
   },
-  declineWireOff: () => {
+  declineWireOff: function() {
     console.log(
-      `Flipping the decline wire off. Current: ${
-        treadmill.currentGrade
-      } Target: ${treadmill.targetGrade}`
+      `Flipping the decline wire off. Current: ${this.currentGrade} Target: ${
+        this.targetGrade
+      }`
     );
     declineWire.digitalWrite(0);
-    treadmill.isDeclining = false;
+    this.isDeclining = false;
   },
-  declineWireToggle: () => {
+  declineWireToggle: function() {
     console.log(`Toggling the decline wire`);
-    if (treadmill.isDeclining) {
-      treadmill.declineWireOff();
+    if (this.isDeclining) {
+      this.declineWireOff();
     } else {
-      treadmill.declineWireOn();
+      this.declineWireOn();
     }
   },
   countdownToInclineLimitInterval: 0,
-  watchForInclineLimitReached: () => {
+  watchForInclineLimitReached: function() {
     let inclineDeclineWireOff;
     let limitGrade;
     let isIncliningOrDeclining;
 
-    if (treadmill.isInclining) {
-      inclineDeclineWireOff = treadmill.inclineWireOff;
+    if (this.isInclining) {
+      inclineDeclineWireOff = this.inclineWireOff;
       limitGrade = constants.maximumGrade;
       isIncliningOrDeclining = () => {
-        return treadmill.isInclining;
+        return this.isInclining;
       };
-    } else if (treadmill.isDeclining) {
-      inclineDeclineWireOff = treadmill.declineWireOff;
+    } else if (this.isDeclining) {
+      inclineDeclineWireOff = this.declineWireOff;
       limitGrade = new Decimal(0);
       isIncliningOrDeclining = () => {
-        return treadmill.isDeclining;
+        return this.isDeclining;
       };
     } else {
       return; // Function was called when we weren't inclining
@@ -185,16 +185,16 @@ const treadmill = {
       if (isIncliningOrDeclining()) {
         console.log("Incline motor hit limit.");
         inclineInfoWire.off("interrupt", restartCountdown);
-        treadmill.targetGrade = limitGrade;
-        treadmill.currentGrade = limitGrade;
+        this.targetGrade = limitGrade;
+        this.currentGrade = limitGrade;
         inclineDeclineWireOff();
-        treadmill.saveToInclineFile(limitGrade);
-        treadmill.isCalibrating = false;
+        this.saveToInclineFile(limitGrade);
+        this.isCalibrating = false;
       }
     };
     const restartCountdown = () => {
-      clearTimeout(treadmill.countdownToInclineLimitInterval);
-      treadmill.countdownToInclineLimitInterval = setTimeout(
+      clearTimeout(this.countdownToInclineLimitInterval);
+      this.countdownToInclineLimitInterval = setTimeout(
         weHitLimit,
         constants.inclineTachTimeoutMs
       );
@@ -205,16 +205,16 @@ const treadmill = {
     inclineInfoWire.off("interrupt", restartCountdown);
     inclineInfoWire.on("interrupt", restartCountdown);
   },
-  calibrateIncline: () => {
+  calibrateIncline: function() {
     // Stop the incline achieve function with this boolean.
-    treadmill.isCalibrating = true;
+    this.isCalibrating = true;
     // Extra safety additions.
-    treadmill.targetGrade = new Decimal(0);
-    treadmill.currentGrade = new Decimal(0);
+    this.targetGrade = new Decimal(0);
+    this.currentGrade = new Decimal(0);
     // Because declining the treadmill down non-stop will automatically trigger a calibration event.
-    treadmill.declineWireOn();
+    this.declineWireOn();
   },
-  setLastKnownIncline: () => {
+  setLastKnownIncline: function() {
     let lastKnownInclineFromFile;
 
     try {
@@ -228,16 +228,16 @@ const treadmill = {
 
     if (!lastKnownInclineFromFile || lastKnownInclineFromFile === "-1") {
       // We don't know what the last known incline was, we need to calibrate.
-      treadmill.calibrateIncline();
+      this.calibrateIncline();
     } else {
-      treadmill.setIncline(lastKnownInclineFromFile, true);
+      this.setIncline(lastKnownInclineFromFile, true);
     }
   },
-  saveToInclineFile: grade => {
+  saveToInclineFile: function(grade) {
     console.log(`Saving to incline file: ${grade}`);
     fs.writeFileSync(inclineFilePath, grade);
   },
-  measureIncline: () => {
+  measureIncline: function() {
     let tickAccumulator = 0;
     let resetInterval;
 
@@ -263,8 +263,8 @@ const treadmill = {
         resetInterval = setTimeout(() => {
           console.log("counted: ", tickAccumulator);
           tickAccumulator = 0;
-          treadmill.inclineWireOff();
-          treadmill.declineWireOff();
+          this.inclineWireOff();
+          this.declineWireOff();
         }, 3000);
 
         tickAccumulator += 1;

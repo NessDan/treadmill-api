@@ -15,7 +15,7 @@ const constants = require("./constants.js");
 const treadmill = {
   targetSpeed: new Decimal(0),
   currentSpeed: new Decimal(0),
-  translateMphToDutyCycle: mph => {
+  translateMphToDutyCycle: function(mph) {
     /*
             THE MIGHTY SPREADSHEET OF TESTING AND DATA!!!
             https://docs.google.com/spreadsheets/d/1iB9PY8yc2AVhMQdQ8LYhLKZ4KrGB5Nou8P9aVCMPZko/edit?usp=sharing
@@ -68,7 +68,7 @@ const treadmill = {
 
     return dutyCycleForMph.toDP(0).toNumber(); // pigpio is expecting a number with no decimals.
   },
-  graduallyAchieveTargetSpeed: () => {
+  graduallyAchieveTargetSpeed: function() {
     // Going from 0mph to 6mph takes roughly 11s
     // https://photos.app.goo.gl/h2WShMgJdqL9JZsq5
     // Therefore, for every 1mph, it takes 1.833s
@@ -76,7 +76,7 @@ const treadmill = {
     // And every 1ms the mph changes 0.000545553737mph
     // Every 100ms we change speed at 0.0545553737mph
     // ALSO every 0.1mph takes 0.18333s which is about 183ms
-    const weReachedTarget = treadmill.targetSpeed.eq(treadmill.currentSpeed);
+    const weReachedTarget = this.targetSpeed.eq(this.currentSpeed);
 
     if (weReachedTarget) {
       return;
@@ -84,37 +84,37 @@ const treadmill = {
 
     // Let's update our speed below:
     let speedChange = constants.speedChangeEveryInterval;
-    let isIncreasing = treadmill.currentSpeed.lt(treadmill.targetSpeed);
-    let isDecreasing = treadmill.currentSpeed.gt(treadmill.targetSpeed);
+    let isIncreasing = this.currentSpeed.lt(this.targetSpeed);
+    let isDecreasing = this.currentSpeed.gt(this.targetSpeed);
 
-    if (treadmill.currentSpeed.lte(constants.maxSpeed)) {
+    if (this.currentSpeed.lte(constants.maxSpeed)) {
       if (isIncreasing) {
         // If we're increasing, cap the currentSpeed at targetSpeed or maxSpeed (prevents overshooting / way too fast)
-        treadmill.currentSpeed = Decimal.min(
-          treadmill.currentSpeed.add(speedChange),
-          treadmill.targetSpeed,
+        this.currentSpeed = Decimal.min(
+          this.currentSpeed.add(speedChange),
+          this.targetSpeed,
           constants.maxSpeed
         );
       } else if (isDecreasing) {
         // If we're decreasing, cap the currentSpeed at targetSpeed or 0 (prevents overshooting / negative)
-        treadmill.currentSpeed = Decimal.max(
-          treadmill.currentSpeed.sub(speedChange),
-          treadmill.targetSpeed,
+        this.currentSpeed = Decimal.max(
+          this.currentSpeed.sub(speedChange),
+          this.targetSpeed,
           0
         );
       }
-      const newDutyCycle = treadmill.translateMphToDutyCycle(
-        treadmill.currentSpeed
+      const newDutyCycle = this.translateMphToDutyCycle(
+        this.currentSpeed
       );
 
-      console.log("targ: ", treadmill.targetSpeed.toNumber());
-      console.log("cur: ", treadmill.currentSpeed.toNumber());
+      console.log("targ: ", this.targetSpeed.toNumber());
+      console.log("cur: ", this.currentSpeed.toNumber());
       console.log("duty: ", newDutyCycle);
 
-      treadmill.setSpeedWire(newDutyCycle);
+      this.setSpeedWire(newDutyCycle);
     }
   },
-  setSpeed: mph => {
+  setSpeed: function(mph) {
     const mphUnsafe = Number.parseFloat(mph); // In case someone sent us a string-string...
     const mphDecimal = new Decimal(mphUnsafe);
 
@@ -126,30 +126,30 @@ const treadmill = {
     ) {
       console.log("mphDecimal is valid.");
       const mphRounded = mphDecimal.toDP(1);
-      treadmill.targetSpeed = mphRounded;
+      this.targetSpeed = mphRounded;
     }
   },
-  changeSpeed: mph => {
+  changeSpeed: function(mph) {
     // For changing speed relatively.
-    treadmill.setSpeed(treadmill.targetSpeed.add(mph));
+    this.setSpeed(this.targetSpeed.add(mph));
   },
-  startTreadmill: () => {
-    if (treadmill.targetSpeed.isZero()) {
-      treadmill.setSpeed(constants.startSpeed);
+  startTreadmill: function() {
+    if (this.targetSpeed.isZero()) {
+      this.setSpeed(constants.startSpeed);
     }
   },
-  stopTreadmill: () => {
-    treadmill.setSpeed(0);
+  stopTreadmill: function() {
+    this.setSpeed(0);
   },
-  setSpeedWire: targetDutyCycle => {
+  setSpeedWire: function(targetDutyCycle) {
     console.log(`Setting the speed duty cycle to ${targetDutyCycle}`);
     speedWire.hardwarePwmWrite(constants.speedWireFrequency, targetDutyCycle);
   },
-  speedWireOff: () => {
+  speedWireOff: function() {
     console.log(`Setting the speed duty cycle to 0`);
     speedWire.hardwarePwmWrite(constants.speedWireFrequency, 0);
   },
-  measureTachTiming: () => {
+  measureTachTiming: function() {
     let tickAccumulator = 0;
     let timingPerRotation = [];
     let tachPerMinInterval;
@@ -161,8 +161,8 @@ const treadmill = {
     speedInfoWire.on("interrupt", level => {
       if (level === 1) {
         if (
-          treadmill.currentSpeed.eq(treadmill.targetSpeed) &&
-          !treadmill.targetSpeed.isZero()
+          this.currentSpeed.eq(this.targetSpeed) &&
+          !this.targetSpeed.isZero()
         ) {
           if (!tachPerMinInterval) {
             tachPerMinInterval = true; // temporarily set this so it doesn't get called again
@@ -202,8 +202,8 @@ const treadmill = {
       }
     });
   },
-  getSpeed: () => {
-    return treadmill.targetSpeed.toString();
+  getSpeed: function() {
+    return this.targetSpeed.toString();
   }
 };
 

@@ -23,44 +23,46 @@ const treadmill = {
   ...speedMethods,
   ...inclineMethods,
   ...heartRateMethods,
-  initialize: () => {
+  initialize: function() {
+    this.self = treadmill;
+
     // In case the program crashed and they're still turned on
     // or if they don't initialize to off on `new Gpio`
-    treadmill.cleanGpio();
+    this.cleanGpio();
 
     // We have no way of knowing what the incline is, so load from a file
     // we saved what the last known incline state was.
-    treadmill.setLastKnownIncline();
+    this.setLastKnownIncline();
 
     // Search, connect, and read HR data
-    treadmill.startHeartRateServices();
+    this.startHeartRateServices();
 
     // Keep speed and incline in sync with what the user wants.
-    treadmill.updateLogicLoop();
+    this.updateLogicLoop();
   },
   updateLogicLoopIntervalId: 0,
-  updateLogicLoop: () => {
+  updateLogicLoop: function() {
     // Sets an interval where different functions can run at an X ms loop.
-    treadmill.updateLogicLoopIntervalId = setInterval(() => {
+    this.updateLogicLoopIntervalId = setInterval(() => {
       // Start main logic loops to that achieve the speed and incline
       // the user requests.
-      treadmill.graduallyAchieveTargetSpeed();
-      treadmill.graduallyAchieveTargetIncline();
+      this.graduallyAchieveTargetSpeed();
+      this.graduallyAchieveTargetIncline();
     }, constants.updateLogicLoopInterval);
   },
-  cleanGpio: () => {
-    treadmill.inclineWireOff();
-    treadmill.declineWireOff();
-    treadmill.speedWireOff();
+  cleanGpio: function() {
+    this.inclineWireOff();
+    this.declineWireOff();
+    this.speedWireOff();
   },
-  cleanUp: () => {
+  cleanUp: function() {
     // Should get called on exit / termination
 
     // No longer update targeted speeds or inclines.
-    clearInterval(treadmill.updateLogicLoopIntervalId);
+    clearInterval(this.updateLogicLoopIntervalId);
 
     // Turn off all our wires.
-    treadmill.cleanGpio();
+    this.cleanGpio();
   }
 };
 
