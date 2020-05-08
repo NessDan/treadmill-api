@@ -35,7 +35,7 @@ const treadmill = {
     this.setLastKnownIncline();
 
     // Search, connect, and read HR data
-    this.startHeartRateServices();
+    //this.startHeartRateServices();
 
     // Keep speed and incline in sync with what the user wants.
     this.updateLogicLoop();
