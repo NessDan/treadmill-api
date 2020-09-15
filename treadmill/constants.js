@@ -1,7 +1,7 @@
 const Decimal = require("decimal.js");
 
 const constants = {
-  maxSpeed: new Decimal(4),
+  maxSpeed: new Decimal(6),
   startSpeed: new Decimal(2),
   updateLogicLoopInterval: 100, // Update speed / incline every 100ms
   speedWireFrequency: 20, // Treadmill uses 20Hz freq from testing.
