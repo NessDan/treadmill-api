@@ -20,12 +20,13 @@ if (password) {
   app.use(
     basicAuth({
       users: {
-        admin: password
-      }
+        admin: password,
+      },
     })
   );
 }
 app.use(routeLogger); // Logs out to STDOUT with useful request info.
+app.use(express.static("web"));
 app.use(`/api`, apiRouting);
 app.use(`/assistant`, assistantRouting);
 
@@ -35,9 +36,12 @@ const options = {
   ),
   key: fs.readFileSync(
     "/etc/letsencrypt/live/treadmill.nessdan.net/privkey.pem"
-  )
+  ),
 };
 
-letsEncryptApp.listen(80);
+// letsEncryptApp.listen(80); // Commented out when switching to locally hosted only
+app.listen(80, () => {
+  console.log(`Treadmill API now listening.`);
+});
 https.createServer(options, app).listen(443);
 console.log(`Treadmill API now listening.`);
