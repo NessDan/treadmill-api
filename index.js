@@ -18,6 +18,7 @@ if (password) {
       users: {
         admin: password,
       },
+      challenge: true
     })
   );
 }
