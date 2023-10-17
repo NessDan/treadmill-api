@@ -13,14 +13,15 @@ const password = fs.readFileSync("password", "utf8").trim();
 app.use(cors());
 app.use(express.json());
 if (password) {
-  app.use(
-    basicAuth({
-      users: {
-        admin: password,
-      },
-      challenge: true
-    })
-  );
+  const authMiddleware = basicAuth({
+    users: {
+      admin: password,
+    },
+    challenge: true,
+  });
+
+  app.use(`/api`, authMiddleware, apiRouting);
+  app.use(`/assistant`, authMiddleware, assistantRouting);
 }
 app.use(routeLogger); // Logs out to STDOUT with useful request info.
 app.use(express.static("web"));
